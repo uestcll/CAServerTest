@@ -29,13 +29,11 @@ void CLCAGETPKMutiMsgSerializer::SerializeHead(uint32_t Type /* = PK_FORMGET */,
 
 void CLCAGETPKMutiMsgSerializer::Serialize(CLCAMessage* message)
 {
-	for(int i = 0;i<MsgNum;i++){
 
 		SingleMsgSer->clearString();
-		SingleMsgSer->Serialize(&message[i]);
+		SingleMsgSer->Serialize(message);
 		strMsg += SingleMsgSer->getBufString();
 		FullLength += SingleMsgSer->getLength();
-	}
 }
 
 uint8_t* CLCAGETPKMutiMsgSerializer::getSerializeChar()

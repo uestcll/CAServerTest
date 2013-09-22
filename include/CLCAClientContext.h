@@ -1,6 +1,8 @@
 #ifndef CLCACLIENTCONTEXT_H
 #define CLCACLIENTCONTEXT_H
 
+#include <stdint.h>
+
 class CLCAClientContext
 {
 public:

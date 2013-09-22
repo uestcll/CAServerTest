@@ -6,6 +6,8 @@
 #include <netint/in.h>
 #include "CLCAAddress.h"
 #include "CLCAPostNetMsgTool.h"
+#include "CLSocket.h"
+#include "CLDataReceviver.h"
 
 class CLCAClientPostNetMsgBySocket: public CLCAPostNetMsgTool
 {
@@ -15,7 +17,9 @@ public:
 	virtual ~CLCAClientPostNetMsgBySocket();
 
 	virtual void PostNetMessage(uint8_t* msg,uint32_t length);
-	virtual uint8_t* ReadFormNet();
+	virtual void* ReadFromNet();
+
+	void startEpollForRead();
 	
 private:
 	void Initialize();
@@ -23,10 +27,11 @@ private:
 	int writeNetMsg(uint8_t* msg,uint32_t length);
 
 private:
-	int sock;
-	struct sockaddr* serv_addr;
-	int addrSize;
+
 	CLCAAddress* m_addr;
 	CLEpoll* epoll;
+	CLSocket * sock;
+	CLDataReceviver* recv;
+	CLCAClientContext* contextForRecv;
 };
 #endif

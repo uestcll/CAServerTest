@@ -12,15 +12,15 @@ CLCAClientContext::CLCAClientContext(int sock)
 
 bool CLCAClientContext::isReadFull()
 {
-	return (FullLen > 0)&& (FullLen == HasReadLen)
+	return (FullLen > 0)&& (FullLen == HasReadLen);
 }
 
 bool CLCAClientContext::isSock(int sockfd)
 {
-	return (sock == sockfd)
+	return (sock == sockfd);
 }
 
 bool CLCAClientContext::isDcpsHead()
 {
-	return (FullLen == 0)
+	return (FullLen == 0);
 }

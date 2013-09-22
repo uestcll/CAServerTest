@@ -8,7 +8,7 @@ CLDataReceviverBySocket::CLDataReceviverBySocket(CLProtocolDecapsulator* ptcDcps
 	
 }
 
-CLDataReceviverBySocket::CLDataReceviverBySocket(CLSocket* socket):CLDataReceviver()
+CLDataReceviverBySocket::CLDataReceviverBySocket(CLSocket* socket)
 {
 	m_socket = socket;
 	con_client = 0;
@@ -40,7 +40,7 @@ void* CLDataReceviverBySocket::getData()
 		con_client->FullLen = FullLen;
 		con_client->MsgType = m_PtcDcps->DecapsulateProtocolHeadForMsgType(HeadBuf,0);
 
-		if(con_client->MsgType == PK_FORMGET)
+		if(con_client->MsgType == PK_FORMGET || con_client->MsgType == PK_FORREMGET)
 		{
 			uint32_t* num = (uint32_t*)(HeadBuf+8);
 			con_client->MsgNum = *num;
@@ -54,10 +54,9 @@ void* CLDataReceviverBySocket::getData()
 			memset(buf,0,FullLen);
 			memcpy(buf,HeadBuf+8,4);
 		}
-		con_client->FullLen -= 4;
 		delete HeadBuf;
 		con_client->buf = buf;
-		con_client->HasReadLen = 0;
+		con_client->HasReadLen = 4;
 	}
 
 

@@ -3,8 +3,9 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <stdlib.h>
+#include <string.h>
 
-CLCAAddressIPV4::CLCAAddressIPV4(const uint8_t* IP,const uint16_t Port):CLCAAddress(IP,Port)
+CLCAAddressIPV4::CLCAAddressIPV4(const uint8_t* IP,uint16_t Port):CLCAAddress(IP,Port)
 {
 
 }
@@ -16,7 +17,7 @@ void CLCAAddressIPV4::Initialize()
 	memset((char*)addr_ipv4,0,sizeof(addr_ipv4));
 	addr_ipv4->sin_family = AF_INET;
 	addr_ipv4->sin_port = htons(m_Port);
-	inet_pton(AF_INET,(char*)m_IP,addr_ipv4->sin_addr);
+	inet_pton(AF_INET,(char*)m_IP,(void*)&addr_ipv4->sin_addr);
 	addr = (struct sockaddr*)addr_ipv4;
 }
 

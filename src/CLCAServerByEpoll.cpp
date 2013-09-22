@@ -48,6 +48,7 @@ list<CLCAClientContext*>* CLCAServerByEpoll::getData()
 			CLCAClientContext* clientData = getClientData(m_epoll->getEventFd(i));
 			if(clientData != 0 && clientData->isReadFull())
 			{
+				client_lists->remove(clientData);
 				m_list->push_back(clientData);
 				
 			}
@@ -74,7 +75,7 @@ CLCAClientContext* CLCAServerByEpoll::getClientData(int clientfd)
 	return (CLCAClientContext*)(m_drev->getData());
 
 
-	 
+	
 	
 }
 

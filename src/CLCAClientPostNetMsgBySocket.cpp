@@ -25,21 +25,17 @@ void CLCAClientPostNetMsgBySocket::PostNetMessage(uint8_t* msg,uint32_t length)
 void CLCAClientPostNetMsgBySocket::Initialize()
 {
 	epoll = 0;
-	if(m_IPType == TYPEOFIPV4)
-		m_addr = new CLCAAddressIPV4(m_IP,m_Port);
-	else
-		m_addr = new CLCAAddressIPV4(m_IP,m_Port);
-	
-	m_addr->Initialize();
-	sock = m_addr->getSock();
-	serv_addr = m_addr->getAddr();
-	addrSize = m_addr->getAddrSize();
+	sock = new CLSocket(m_IP,m_Port,false,m_IPType);
+	sock->setNonBlock();
+	recv = new CLDataReceviverBySocket(sock);
+	contextForRecv = new CLCAClientContext(sock->getSock());
+	recv->setContext(contextForRecv);
 	Connect();
 }
 
 int CLCAClientPostNetMsgBySocket::Connect()
 {
-	return connect(sock,serv_addr,addrSize);
+	return sock->ConnectSocket();
 }
 
 int CLCAClientPostNetMsgBySocket::writeNetMsg(uint8_t* msg,uint32_t length)
@@ -47,69 +43,42 @@ int CLCAClientPostNetMsgBySocket::writeNetMsg(uint8_t* msg,uint32_t length)
 
 	uint8_t* buf = msg;
 	uint32_t len = length;
+	uint32_t HasWriteLen = 0;
 	uint32_t writeLen = 0;
-	uint32_t writeBuf = 0;
-	while(len > 0)
+	while(HasWriteLen<length)
 	{
-		if(len > 1024)
-		{
-			writeLen = 1024;
-			len = len - 1024;
-		}
-		else
-		{
-			writeLen = len;
-			len = 0;
-		}
-
-		write(sock,buf+writeBuf,writeLen);
-		writeBuf += writeLen;
+	
+		writeLen = sock->WriteSocket(msg+HasWriteLen,len);
+		HasWriteLen += writeLen;
+		len -= writeLen;
 	}
 
 
 }
 
-void CLCAClientPostNetMsgBySocket::startThreadForRead()
+void CLCAClientPostNetMsgBySocket::startEpollForRead()
 {
 	epoll = new CLEpoll(100);
-	epoll->
+	epoll->Register_ctl(EPOLL_CTL_ADD,sock->getSock());
 }
 
-uint8_t* CLCAClientPostNetMsgBySocket::ReadFormNet()
+void* CLCAClientPostNetMsgBySocket::ReadFromNet()
 {
-	uint32_t ReadLen = 0;
-	uint32_t HasLeftLen = 0;
-	uint32_t PReadLen = 0;
-	uint32_t HasReadLen = 0;
-	bool First = false;
-	uint8_t Head[8];
-	uint8_t* buf = 0;
-	while(!First)
+	startEpollForRead();
+	while(true)
 	{
-		 if(read(sock,Head,8) == 8)
-			 First = true;
+		int fds = epoll->EpollWait();
+		for(int i = 0;i<fds ; i++)
+		{
+			if(epoll->getEventFd(i) == sock->getSock())
+			{
+				contextForRecv = (CLCAClientContext*)recv->getData();
+				if(contextForRecv->isReadFull() && contextForRecv != 0)
+					return contextForRecv;
+			}
+			else
+				continue;
+		}
+
 	}
-
-	uint32_t Len = *(uint32_t*)(Head+4);
-	if(Len > 0)
-		buf = new uint8_t[Len+8];
-	else
-		return buf;
-
-	memcpy(buf,Head,8);
-	HasLeftLen = Len;
-	HasReadLen = 8;
-	while(HasLeftLen > 0)
-	{
-		if(HasLeftLen > 1024)
-			PReadLen = 1024;
-		else
-			PReadLen = HasLeftLen;
-
-		ReadLen = read(sock,buf+HasReadLen,PReadLen);
-		HasReadLen += ReadLen;
-		HasLeftLen -= ReadLen;
-	}
-
-	return buf;
 }

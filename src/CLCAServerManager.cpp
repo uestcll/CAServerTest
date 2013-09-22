@@ -120,10 +120,14 @@ void CLCAServerManager::HandlerForGETPKMsg(CLCAMessage* msg,void* pContext)
 	if(msg->m_MsgID != PK_FORSGET)
 		return;
 
+	CLCAClientContext* context = (CLCAClientContext*)pContext;
 	CLCAGETPKMessage* message = dynamic_cast<CLCAGETPKMessage*>msg;
 	if(message == 0)
 		return;
 
 
 	server->writeData();
+
+	delete context;
+	
 }
