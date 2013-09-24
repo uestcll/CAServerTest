@@ -1,6 +1,6 @@
 #include "CLCAPostNetMsgTool.h"
 #include <stdlib.h>
-#include <string>
+#include <string.h>
 
 CLCAPostNetMsgTool::CLCAPostNetMsgTool(uint8_t IPType,uint8_t* IP,uint16_t Port)
 {

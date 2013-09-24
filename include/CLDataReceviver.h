@@ -10,7 +10,7 @@ public:
 	CLDataReceviver();
 	virtual ~CLDataReceviver();
 
-	virtual void setProtocolDecapsulator(CLProtocolDecapsulator* ptcDcps);
+	void setProtocolDecapsulator(CLProtocolDecapsulator* ptcDcps);
 	virtual void setContext(void* pContext);
 	virtual void* getData() = 0;
 	virtual void Initialize() = 0;

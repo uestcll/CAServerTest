@@ -11,6 +11,8 @@ class CLCAAddress
 public:
 	CLCAAddress(const uint8_t* IP,uint16_t Port);
 	virtual ~CLCAAddress();
+
+
 	virtual void Initialize() = 0;
 	virtual int getAddrSize() = 0;
 //	int getSock();

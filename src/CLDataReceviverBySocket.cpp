@@ -34,29 +34,16 @@ void* CLDataReceviverBySocket::getData()
 	uint32_t ReadLen = 0;
 	if(con_client->isDcpsHead())
 	{
-		HeadBuf = new uint8_t[12];
-		m_socket->ReadSocket(12,HeadBuf,&ReadLen,con_client->sock);
+		HeadBuf = new uint8_t[8];
+		m_socket->ReadSocket(8,HeadBuf,&ReadLen,con_client->sock);
 		FullLen = m_PtcDcps->DecapsulateProtocolHeadForLength(HeadBuf,4);
 		con_client->FullLen = FullLen;
 		con_client->MsgType = m_PtcDcps->DecapsulateProtocolHeadForMsgType(HeadBuf,0);
 
-		if(con_client->MsgType == PK_FORMGET || con_client->MsgType == PK_FORREMGET)
-		{
-			uint32_t* num = (uint32_t*)(HeadBuf+8);
-			con_client->MsgNum = *num;
-			buf = new uint8_t[FullLen-4];
-			memset(buf,0,FullLen-4);
-
-		}
-		else
-		{
-			buf = new uint8_t[FullLen];
-			memset(buf,0,FullLen);
-			memcpy(buf,HeadBuf+8,4);
-		}
+		buf = new uint8_t[FullLen];
 		delete HeadBuf;
 		con_client->buf = buf;
-		con_client->HasReadLen = 4;
+		con_client->HasReadLen = 0;
 	}
 
 

@@ -1,6 +1,11 @@
 #include "CLCAGETPKMsgSerializer.h"
 #include "CLCAMessage.h"
 #include "CLCAGETPKMessage.h"
+#include <sting.h>
+#include <iostream>
+
+using namespace std;
+
 CLCAGETPKMsgSerializer::CLCAGETPKMsgSerializer()
 {
 	strmessage.clear();
@@ -13,13 +18,13 @@ CLCAGETPKMsgSerializer::~CLCAGETPKMsgSerializer()
 
 void CLCAGETPKMsgSerializer::SerializeHead(uint32_t Type /* = PK_FORSGET */,uint32_t number /* = 1 */)
 {
-	m_nType = nType;
+	m_nType = Type;
 	m_number = number;
 	uint8_t* Head = new uint8_t[8];
 	memset(Head,0,8);
-	uint32_t* type = (uint8_t*)Head;
-	*type = nType;
-	strmessage.append(Head,8);
+	uint32_t* type = (uint32_t*)Head;
+	*type = Type;
+	strmessage.append((char*)Head,8);
 	delete Head;
 
 }
@@ -29,7 +34,7 @@ void CLCAGETPKMsgSerializer::Serialize(CLCAMessage* clmessage)
 	//CLCAGETPKMessage* message = dynamic_cast<CLCAGETPKMessage*>clmessage;
 	CLCAGETPKMessage* message = (CLCAGETPKMessage*)clmessage;
 	if(message == 0)
-		return 0;
+		return ;
 	int strl = message->LengthOfName+ (message->LengthOfName%4 == 0?0:(4- message->LengthOfName%4));
 	uint8_t* buf = new uint8_t[4+4+4+strl+1];
 	memset(buf,0,4+4+4+strl+1);
@@ -41,7 +46,7 @@ void CLCAGETPKMsgSerializer::Serialize(CLCAMessage* clmessage)
 	uint32_t* echoId = (uint32_t*)(buf+4+strl+4);
 	*echoId = message->EchoID;
 	FullLength += message->FullLength;
-	strmessage.append(buf,message->FullLength);
+	strmessage.append((char*)buf,message->FullLength);
 	delete buf;
 
 	
@@ -68,6 +73,6 @@ void CLCAGETPKMsgSerializer::SerializeLength()
 	uint8_t* len = new uint8_t[4];
 	uint32_t* Len = (uint32_t*)len;
 	*Len = FullLength;
-	strmessage.replace(4,4,len);
+	strmessage.replace(4,4,(char*)len);
 	delete len;
 }

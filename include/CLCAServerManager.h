@@ -6,22 +6,25 @@
 #include "CLCADeSerializer.h"
 #include "CLCAMessage.h"
 #include <list>
+#include <map>
 #define  PORT 19999
 
-typedef void (*Handler)(CLCAMessage*,void* pContext);
+class CLMessageObserver;
+
+typedef void (CLMessageObserver::*Handler)(CLCAMessage*,void*);
 class CLCAServerManager
 {
 
 public:
-	CLCAServerManager(CLCAServer* ser);
-	CLCAServerManager();
+	CLCAServerManager(CLCAServer* ser,CLMessageObserver* msgObserver);
+	CLCAServerManager(CLMessageObserver* msgObserver);
 	virtual ~CLCAServerManager();
 
 	virtual void Initialize();
 	virtual void RunLoop();
     
 	virtual int RegisterSerializer(uint32_t msgID,CLCASerializer* ser);
-	virtual static static static static virtual int RegisterDeSerializer(uint32_t msgID,CLCADeSerializer* Deser) const const;
+	virtual int RegisterDeSerializer(uint32_t msgID,CLCADeSerializer* Deser);
 	virtual int RegisterHandler(uint32_t msgID,Handler handler);
 
 private:
@@ -32,8 +35,9 @@ private:
 protected:
 	CLCAServer* server;
 	bool IsDeleteServer;
-	map<uint32_t msgID,CLCADeSerializer*> map_DeSer;
-	map<uint32_t msgID,CLCASerializer*> map_Ser;
-	map<uint32_t msgID,Handler> map_Handler;
+	std::map<uint32_t ,CLCADeSerializer*> map_DeSer;
+	std::map<uint32_t ,CLCASerializer*> map_Ser;
+	std::map<uint32_t ,Handler> map_Handler;
+	CLMessageObserver* m_pMsgObserver;
 };
 #endif

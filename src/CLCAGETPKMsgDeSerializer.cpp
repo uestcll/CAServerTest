@@ -1,7 +1,7 @@
 #include "CLCAGETPKMsgDeSerializer.h"
 #include "CLCAGETPKMessage.h"
 #include <stdlib.h>
-#include <string>
+#include <string.h>
 
 CLCAGETPKMsgDeSerializer::CLCAGETPKMsgDeSerializer()
 {

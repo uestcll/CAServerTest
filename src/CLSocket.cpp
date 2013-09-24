@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 #include <fcntl.h>
 
-CLSocket::CLSocket(uint8_t* IP,uint16_t Port,bool isneeded,int socketType /* = AF_INET */,int socketStream /* = SOCK_STREAM */)
+CLSocket::CLSocket(const uint8_t* IP,uint16_t Port,bool isneeded,int socketType /* = AF_INET */,int socketStream /* = SOCK_STREAM */)
 {
 	SocketType = socketType;
 	SocketStream = socketStream;

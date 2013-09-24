@@ -10,7 +10,7 @@
 class CLSocket
 {
 public:
-	CLSocket(uint8_t* IP,uint16_t Port,bool isneeded = false,int socketType = AF_INET,int socketStream = SOCK_STREAM);
+	CLSocket(const uint8_t* IP,uint16_t Port,bool isneeded = false,int socketType = AF_INET,int socketStream = SOCK_STREAM);
 	virtual ~CLSocket();
 
 

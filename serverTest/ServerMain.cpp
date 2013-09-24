@@ -9,7 +9,7 @@ using namespace std;
 
 int main()
 {
-	CLCAServerManager* manager = new CLCAServerManager(new CLCAServerByEpoll(0,PORT));
+	CLCAServerManager* manager = new CLCAServerManager(new CLCAServerByEpoll(0,PORT),new CLServerMessageObserver);
 	manager->Initialize();
 	manager->RunLoop();
 	delete manager;

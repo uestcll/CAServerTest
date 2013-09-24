@@ -12,7 +12,7 @@ public:
 	virtual ~CLCAGETPKMutiMsgSerializer();
 
 	virtual void Serialize(CLCAMessage* message);
-	virtual void SerializeHead(uint32_t Type = PK_FORMGET,uint32_t number);
+	virtual void SerializeHead(uint32_t Type ,uint32_t number);
 	virtual void SerializeLength();
 	virtual uint8_t* getSerializeChar();
 

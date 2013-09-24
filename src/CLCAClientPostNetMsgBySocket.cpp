@@ -1,4 +1,5 @@
 #include "CLCAClientPostNetMsgBySocket.h"
+#include "CLDataReceviverBySocket.h"
 #include <iostream>
 #include <stdlib.h>
 #include <errno.h>

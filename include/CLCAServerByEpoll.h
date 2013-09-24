@@ -2,7 +2,8 @@
 #define CLCASERVERBYEPOLL_H
 #include "CLCAServer.h"
 #include "CLSocket.h"
-#include "CLDataRecevive.h"
+#include "CLDataReceviver.h"
+#include "CLEpoll.h"
 
 class CLCAServerByEpoll:public CLCAServer
 {
@@ -15,7 +16,7 @@ public:
 
 	virtual void Initialize();
 	virtual int Accept();
-	virtual list<CLCAClientContext*>* getData();
+	virtual std::list<CLCAClientContext*>* getData();
 	virtual int  writeData(int sock,uint8_t* buf);
 	virtual void start();
 

@@ -9,10 +9,12 @@
 class CLCAAddressIPV4 : public CLCAAddress
 {
 public:
-	virtual void Initialize();
-	virtual int getAddrSize();
 	CLCAAddressIPV4(const uint8_t* IP,uint16_t Port);
 	virtual ~CLCAAddressIPV4();
+
+	virtual void Initialize();
+	virtual int getAddrSize();
+	
 private:
 	struct sockaddr_in* addr_ipv4;
 };

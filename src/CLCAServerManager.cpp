@@ -1,18 +1,27 @@
 #include "CLCAServerManager.h"
+#include "CLCAServerByEpoll.h"
+#include "CLCAGETPKMsgSerializer.h"
+#include "CLCAGETPKMutiMsgSerializer.h"
+#include "CLCAGETPKMsgDeSerializer.h"
+#include "CLCAGETPKMutiMsgDeSerializer.h"
+#include "CLCAGETPKMessage.h"
 
 
+using namespace std;
 
-CLCAServerManager::CLCAServerManager()
+CLCAServerManager::CLCAServerManager(CLMessageObserver* msgObserver)
 {
 	server = new CLCAServerByEpoll(0,PORT);
 	IsDeleteServer = true;
+	m_pMsgObserver = msgObserver;
 
 }
 
-CLCAServerManager::CLCAServerManager(CLCAServer* ser)
+CLCAServerManager::CLCAServerManager(CLCAServer* ser,CLMessageObserver* msgObserver)
 {
 	server = ser;
 	IsDeleteServer = false;
+	m_pMsgObserver = msgObserver;
 }
 
 CLCAServerManager::~CLCAServerManager()
@@ -24,14 +33,15 @@ CLCAServerManager::~CLCAServerManager()
 
 void CLCAServerManager::Initialize()
 {
+
 	server->Initialize();
+	m_pMsgObserver->Initialize(this,0);
 	RegisterSerializer(PK_FORSGET,new CLCAGETPKMsgSerializer);
 	RegisterSerializer(PK_FORMGET,new CLCAGETPKMutiMsgSerializer);
 
 	RegisterDeSerializer(PK_FORSGET,new CLCAGETPKMsgDeSerializer);
-	RegisterDeSerializer(PK_FORMGET,new CLCAGETPKMsgDeSerializer);
+	RegisterDeSerializer(PK_FORMGET,new CLCAGETPKMutiMsgDeSerializer);
 
-	RegisterHandler(PK_FORSGET,this->HandlerForGETPKMsg);
 }
 
 void CLCAServerManager::RunLoop()
@@ -72,7 +82,7 @@ void CLCAServerManager::Dispatch(void* pContext)
 		if(Handler_it == map_Handler.end())
 			return;
 
-		Handler_it->second(msg,(CLCAClientContext*)it);
+		Handler_it->second(msg,*it);
 
 	}
 
@@ -115,19 +125,3 @@ int CLCAServerManager::RegisterHandler(uint32_t msgID,Handler handler)
 	return 0;
 }
 
-void CLCAServerManager::HandlerForGETPKMsg(CLCAMessage* msg,void* pContext)
-{
-	if(msg->m_MsgID != PK_FORSGET)
-		return;
-
-	CLCAClientContext* context = (CLCAClientContext*)pContext;
-	CLCAGETPKMessage* message = dynamic_cast<CLCAGETPKMessage*>msg;
-	if(message == 0)
-		return;
-
-
-	server->writeData();
-
-	delete context;
-	
-}

@@ -1,6 +1,10 @@
 #include "CLCAServerByEpoll.h"
 #include "CLEpoll.h"
 #include "CLCAClientContext.h"
+#include "CLDataReceviverBySocket.h"
+#include <iostream>
+
+using namespace std;
 
 CLCAServerByEpoll::CLCAServerByEpoll(uint8_t* IP,uint16_t Port,int IPType /* = AF_INET */,int streamType /* = SOCK_STREAM */):CLCAServer(IP,Port,IPType,streamType)
 {
@@ -64,14 +68,14 @@ CLCAClientContext* CLCAServerByEpoll::getClientData(int clientfd)
 	 list<CLCAClientContext*>:: iterator it;
 	 for(it = client_lists->begin();it != client_lists->end();it++)
 	 {
-		 if(it->isSock(clientfd)
+		 if((*it)->isSock(clientfd))
 			 break;
 	 }
 
-	 if(it == client_lists->end() && !it->isSock(clientfd))
+	 if(it == client_lists->end() && !(*it)->isSock(clientfd))
 		 return 0;
 
-	 m_drev->setContext((CLCAClientContext*)it);
+	 m_drev->setContext(*it);
 	return (CLCAClientContext*)(m_drev->getData());
 
 
