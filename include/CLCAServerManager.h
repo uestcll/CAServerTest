@@ -12,7 +12,7 @@
 
 
 
-typedef void (CLMessageObserver::*Handler)(CLCAMessage*,void*);
+typedef void (CLMessageObserver::*Handler)(void*);
 class CLCAServerManager
 {
 
@@ -28,11 +28,11 @@ public:
 	virtual int RegisterDeSerializer(uint32_t msgID,CLCADeSerializer* Deser);
 	virtual int RegisterHandler(uint32_t msgID,Handler handler);
 
-private:
-	
+protected:
 	virtual void Dispatch(void* pContext);
 
-	void HandlerForGETPKMsg(CLCAMessage* msg,void* pContext);
+
+
 protected:
 	CLCAServer* server;
 	bool IsDeleteServer;

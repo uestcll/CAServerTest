@@ -11,6 +11,7 @@ class CLSocket
 {
 public:
 	CLSocket(const uint8_t* IP,uint16_t Port,bool isneeded = false,int socketType = AF_INET,int socketStream = SOCK_STREAM);
+	CLSocket(int sockfd);
 	virtual ~CLSocket();
 
 
@@ -40,6 +41,7 @@ private:
 	int SocketStream;
 	struct sockaddr* their_addr;
 	bool isNeeded;
+	bool isInput;
 
 };
 #endif

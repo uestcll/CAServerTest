@@ -5,6 +5,8 @@
 #include "CLCAGETPKMsgDeSerializer.h"
 #include "CLCAGETPKMutiMsgDeSerializer.h"
 #include "CLCAGETPKMessage.h"
+#include <stdlib.h>
+
 
 
 using namespace std;
@@ -62,8 +64,10 @@ void CLCAServerManager::Dispatch(void* pContext)
 
 	list<CLCAClientContext*>* client_list = (list<CLCAClientContext*>*)pContext;
 	if(client_list->empty())
+	{
+		delete client_list;
 		return;
-
+	}
 	uint32_t MsgType;
 	list<CLCAClientContext*> ::iterator it;
 	map<uint32_t,CLCADeSerializer*> ::iterator DeSer_it;
@@ -80,12 +84,27 @@ void CLCAServerManager::Dispatch(void* pContext)
 
 		Handler_it = map_Handler.find(MsgType);
 		if(Handler_it == map_Handler.end())
-			return;
+			continue;
 
-		Handler_it->second(msg,*it);
+		HandlerContext* context = (HandlerContext*)malloc(sizeof(struct HandlerContext));
+		context->context = *it;
+		context->msg = msg;
+		context->MsgObserver = this->m_pMsgObserver;
+		context->pContext = 0;
+		Handler_it->second(context);
+		free(context);
+		if((*it)->MsgNum > 1)
+			delete []msg;
+		else
+			delete msg;
 	
+		delete (*it);
 
 	}
+
+	client_list->clear();
+	delete client_list;
+
 
 
 }

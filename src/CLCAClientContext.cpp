@@ -1,13 +1,23 @@
 #include "CLCAClientContext.h"
 
-CLCAClientContext::CLCAClientContext(int sock)
+CLCAClientContext::CLCAClientContext(CLSocket* sock)
 {
-	this->sock = sock;
+	this->m_sock = sock;
 	this->buf = 0;
 	this->FullLen = 0;
 	this->HasReadLen = 0;
 	this->MsgType = 0;
 	this->MsgNum = 0;
+}
+
+CLCAClientContext::~CLCAClientContext()
+{
+	if(buf != 0)
+		delete buf;
+	if(m_sock != 0)
+		delete m_sock;
+
+
 }
 
 bool CLCAClientContext::isReadFull()
@@ -17,7 +27,7 @@ bool CLCAClientContext::isReadFull()
 
 bool CLCAClientContext::isSock(int sockfd)
 {
-	return (sock == sockfd);
+	return (m_sock->getSock() == sockfd);
 }
 
 bool CLCAClientContext::isDcpsHead()

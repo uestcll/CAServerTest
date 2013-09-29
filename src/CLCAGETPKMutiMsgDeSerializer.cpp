@@ -36,10 +36,13 @@ CLCAMessage* CLCAGETPKMutiMsgDeSerializer::DeSerializer(uint8_t* buf)
 
 	CLCAGETPKMessage* msg = new CLCAGETPKMessage[Msg_number];
 	int NextIndex = 0;
+	CLCAGETPKMessage* temp_msg = 0;
 	for(int i = 0;i<Msg_number;i++)
 	{
 		NextIndex = getMsgLength(temp);
-		SingleDeSer->DeSerializer(temp);
+		temp_msg = (CLCAGETPKMessage*)SingleDeSer->DeSerializer(temp);
+		msg[i] = *temp_msg;
+		delete temp_msg;
 		temp += NextIndex;
 	}
 

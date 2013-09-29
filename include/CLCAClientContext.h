@@ -1,12 +1,13 @@
 #ifndef CLCACLIENTCONTEXT_H
 #define CLCACLIENTCONTEXT_H
 
+#include "CLSocket.h"
 #include <stdint.h>
 
 class CLCAClientContext
 {
 public:
-	int sock;
+	CLSocket* m_sock;
 	uint8_t* buf;
 	uint32_t MsgType;
 	uint32_t MsgNum;
@@ -15,7 +16,8 @@ public:
 	uint32_t FullLen;
 
 public:
-	CLCAClientContext(int sock);
+	CLCAClientContext(CLSocket* sock);
+	virtual ~CLCAClientContext();
 	bool isReadFull();
 	bool isSock(int sockfd);
 	bool isDcpsHead();

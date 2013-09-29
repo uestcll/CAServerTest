@@ -1,7 +1,19 @@
 #ifndef CLMESSAGEOBSERVER_H
 #define CLMESSAGEOBSERVER_H
 
-class CLCAServerManager;
+#include "CLCAServerManager.h"
+#include "CLCAMessage.h"
+#include "CLCAClientContext.h"
+
+class CLMessageObserver;
+
+struct HandlerContext
+{
+	CLCAMessage* msg;
+	CLMessageObserver* MsgObserver;
+	CLCAClientContext* context;
+	void* pContext;
+};
 
 class CLMessageObserver
 {

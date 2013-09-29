@@ -11,8 +11,8 @@ public:
 
 	virtual void Initialize(CLCAServerManager* Manager,void* pContext);
 
-	void HandlerForSGETPKMsg(CLCAMessage* msg,void* pContext);
-	void HandlerForMGETPKMsg(CLCAMessage* msg,void* pContext);
+	static void HandlerForSGETPKMsg(void* pContext);
+	static void HandlerForMGETPKMsg(void* pContext);
 private:
 
 	CLCAServerManager* manager;

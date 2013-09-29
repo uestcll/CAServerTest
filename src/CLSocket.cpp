@@ -19,6 +19,16 @@ CLSocket::CLSocket(const uint8_t* IP,uint16_t Port,bool isneeded,int socketType 
 
 }
 
+CLSocket::CLSocket(int sockfd)
+{
+	sock = sockfd;
+	isInput = true;
+	SocketType = 0;
+	SocketStream = 0;
+	isNeeded = false;
+	address = 0;
+}
+
 CLSocket::~CLSocket()
 {
 	if(address != 0)
@@ -35,25 +45,22 @@ void CLSocket::Initialize()
 		their_addr = (struct sockaddr*)malloc(sizeof(sockaddr));
 	else
 		their_addr = 0;
+	isInput = false;
 }
+
+
 
 int CLSocket::setNonBlock()
 {
-	
-	return setNonBlock(sock);
-}
-
-int CLSocket::setNonBlock(int fd)
-{
 	int flags;
-	flags = fcntl(fd, F_GETFL,NULL);
+	flags = fcntl(sock, F_GETFL,NULL);
 	if(flags < 0)
 	{
 		return flags;
 	}
 	flags |= O_NONBLOCK;
 
-	if(fcntl(fd, F_SETFL,flags) < 0)
+	if(fcntl(sock, F_SETFL,flags) < 0)
 		return -1;
 
 	return 0;
@@ -62,11 +69,16 @@ int CLSocket::setNonBlock(int fd)
 
 int CLSocket::ConnectSocket()
 {
+	if(isInput)
+		return -1;
+
 	return connect(sock,address->getAddr(),address->getAddrSize());
 }
 
 int CLSocket::BindSocket()
 {
+	if(isInput)
+		return -1;
 	return bind(sock,address->getAddr(),address->getAddrSize());
 }
 
@@ -77,50 +89,38 @@ int CLSocket::ListenSocket(int listenType /* = 0 */)
 
 int CLSocket::AcceptSocket()
 {
+	if(isInput)
+		return -1;
 	return accept(sock,their_addr,sizeof(their_addr));
 }
 
 int CLSocket::WriteSocket(uint8_t* buf,uint32_t writeLen)
 {
-	return WriteSocket(buf,writeLen,sock);
+	return write(sock,buf,writeLen);
 }
 
-int CLSocket::WriteSocket(uint8_t* buf,uint32_t writeLen,int writeSock)
-{
-	return write(writeSock,buf,writeLen);
-}
 
 uint8_t* CLSocket::ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen)
 {
-	return ReadSocket(readLen,buf,HasReadLen,sock);
-}
-
-uint8_t* CLSocket::ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen,int readSock)
-{
-	*HasReadLen = read(readSock,buf,readLen);
+	*HasReadLen = read(sock,buf,readLen);
 	return buf;
 }
+
+
 
 int CLSocket::SendSocket(uint8_t* buf,uint32_t sendLen)
 {
-	return SendSocket(buf,sendLen,sock);
+	return send(sock,buf,sendLen,0);
 }
 
-int CLSocket::SendSocket(uint8_t* buf,uint32_t sendLen,int sendSock)
-{
-	return send(sendSock,buf,sendLen,0);
-}
+
 
 uint8_t* CLSocket::ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen)
 {
-	return ReceiveSocket(receiveLen,buf,HasReadLen,sock);
-}
-
-uint8_t* CLSocket::ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen,int receiveSock)
-{
-	*HasReadLen = receive(receiveSock,buf,receiveLen,0);
+	*HasReadLen = receive(sock,buf,receiveLen,0);
 	return buf;
 }
+
 
 int CLSocket::getSock()
 {

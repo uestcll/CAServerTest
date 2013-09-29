@@ -43,8 +43,9 @@ list<CLCAClientContext*>* CLCAServerByEpoll::getData()
 		if(m_epoll->getEventFd(i) == m_sock->getSock())
 		{
 			int clientFd = m_sock->AcceptSocket();
-			CLCAClientContext* client = new CLCAClientContext(clientFd);
-			m_sock->setNonBlock(clientFd);
+			CLSocket* sock = new CLSocket(clientFd);
+			sock->setNonBlock();
+			CLCAClientContext* client = new CLCAClientContext(sock);
 		    client_lists->push_back(client);
 		}
 		else
@@ -85,5 +86,6 @@ CLCAClientContext* CLCAServerByEpoll::getClientData(int clientfd)
 
 int CLCAServerByEpoll::writeData(int sock,uint8_t* buf)
 {
-
+	return 0;
 }
+

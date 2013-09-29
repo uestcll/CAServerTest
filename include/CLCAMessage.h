@@ -16,14 +16,17 @@ class CLCAMessage
 public:
 	CLCAMessage(uint32_t msgID);
 	virtual ~CLCAMessage();
-
+	
 	virtual CLCAMessage* copy() = 0;
 
-public:
-	uint32_t m_MsgID;
 private:
 	CLCAMessage(const CLCAMessage&);
 	CLCAMessage& operator=(const CLCAMessage&);
+
+public:
+	uint32_t m_MsgID;
+
+
 
 //protected:
 //	uint32_t m_lFullLength;

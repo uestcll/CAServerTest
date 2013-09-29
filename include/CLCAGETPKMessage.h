@@ -16,10 +16,16 @@ public:
 
 public:
 	CLCAGETPKMessage(uint32_t lengthOfName,uint8_t* name,uint32_t pkType,uint32_t echoID);
-	virtual ~CLCAGETPKMessage();
+	virtual ~CLCAGETPKMessage();	
+	
+	CLCAGETPKMessage& operator = (const CLCAGETPKMessage&);
 	CLCAGETPKMessage();
 
 	virtual CLCAMessage* copy();
+
+private:
+	CLCAGETPKMessage(const CLCAGETPKMessage&);
+
 public:
 	uint32_t FullLength;
 };

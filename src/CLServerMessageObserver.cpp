@@ -20,24 +20,24 @@ void CLServerMessageObserver::Initialize(CLCAServerManager* Manager,void* pConte
 	manager->RegisterHandler(PK_FORSGET,(Handler)(&CLServerMessageObserver::HandlerForGETPKMsg));
 }
 
-void CLServerMessageObserver::HandlerForSGETPKMsg(CLCAMessage* msg,void* pContext)
+void CLServerMessageObserver::HandlerForSGETPKMsg(void* pContext)
 {
+	HandlerContext* context = (HandlerContext*)pContext;
+	CLCAMessage* msg = context->msg;
 	if(msg->m_MsgID != PK_FORSGET)
 		return;
 
-	CLCAClientContext* context = (CLCAClientContext*)pContext;
+	CLServerMessageObserver* observer = (CLServerMessageObserver*)context->MsgObserver;
+	CLCAClientContext* clientcon = context->context;
 	CLCAGETPKMessage* message = dynamic_cast<CLCAGETPKMessage*>msg;
 	if(message == 0)
 		return;
 
-
-	manager->server->writeData();
-
-	delete context;
+	
 
 }
 
-void CLServerMessageObserver::HandlerForMGETPKMsg(CLCAMessage* msg,void* pContext)
+void CLServerMessageObserver::HandlerForMGETPKMsg(void* pContext)
 {
 
 }
