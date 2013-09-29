@@ -3,11 +3,14 @@
 
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netint/in.h>
+#include <netinet/in.h>
 #include "CLCAAddress.h"
 #include "CLCAPostNetMsgTool.h"
 #include "CLSocket.h"
 #include "CLDataReceviver.h"
+#include "CLEpoll.h"
+#include "CLCAClientContext.h"
+
 
 class CLCAClientPostNetMsgBySocket: public CLCAPostNetMsgTool
 {

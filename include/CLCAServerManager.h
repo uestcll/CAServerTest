@@ -5,11 +5,12 @@
 #include "CLCASerializer.h"
 #include "CLCADeSerializer.h"
 #include "CLCAMessage.h"
+#include "CLMessageObserver.h"
 #include <list>
 #include <map>
 #define  PORT 19999
 
-class CLMessageObserver;
+
 
 typedef void (CLMessageObserver::*Handler)(CLCAMessage*,void*);
 class CLCAServerManager

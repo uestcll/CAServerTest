@@ -66,23 +66,24 @@ void CLCAServerManager::Dispatch(void* pContext)
 
 	uint32_t MsgType;
 	list<CLCAClientContext*> ::iterator it;
-	map<uint32_t msgID,CLCADeSerializer*> ::iterator DeSer_it;
-	map<uint32_t msgID,Handler> ::iterator Handler_it;
+	map<uint32_t,CLCADeSerializer*> ::iterator DeSer_it;
+	map<uint32_t,Handler> ::iterator Handler_it;
 	for(it = client_list->begin();it != client_list->end();it++)
 	{
-		MsgType = it->MsgType;
+		MsgType = (*it)->MsgType;
 		DeSer_it = map_DeSer.find(MsgType);
 		if(DeSer_it == map_DeSer.end())
 			continue;
 		CLCAMessage* msg = 0;
 
-		msg = DeSer_it->second->DeSerializer(it->buf);
+		msg = DeSer_it->second->DeSerializer((*it)->buf);
 
 		Handler_it = map_Handler.find(MsgType);
 		if(Handler_it == map_Handler.end())
 			return;
 
 		Handler_it->second(msg,*it);
+	
 
 	}
 
@@ -93,7 +94,7 @@ int CLCAServerManager::RegisterSerializer(uint32_t msgID,CLCASerializer* ser)
 {
 	map<uint32_t,CLCASerializer*> ::iterator it;
 	it = map_Ser.find(msgID);
-	if (it != map_Ser.end())
+	if (it == map_Ser.end())
 		return -1;
 	
 	map_Ser[msgID] = ser;
@@ -105,7 +106,7 @@ int CLCAServerManager::RegisterDeSerializer(uint32_t msgID,CLCADeSerializer* Des
 {
 	map<uint32_t,CLCADeSerializer*> ::iterator it;
 	it = map_DeSer.find(msgID);
-	if (it != map_DeSer.end())
+	if (it == map_DeSer.end())
 		return -1;
 
 	map_DeSer[msgID] = Deser;
@@ -117,7 +118,7 @@ int CLCAServerManager::RegisterHandler(uint32_t msgID,Handler handler)
 {
 	map<uint32_t,Handler> ::iterator it;
 	it = map_Handler.find(msgID);
-	if (it != map_Handler.end())
+	if (it == map_Handler.end())
 		return -1;
 
 	map_Handler[msgID] = handler;

@@ -1,6 +1,7 @@
 #include "CLCAGETPKMutiMsgDeSerializer.h"
 #include "CLCAMessage.h"
 #include "CLCAGETPKMessage.h"
+#include "CLCAGETPKMsgDeSerializer.h"
 
 CLCAGETPKMutiMsgDeSerializer::CLCAGETPKMutiMsgDeSerializer()
 {
@@ -24,7 +25,7 @@ int CLCAGETPKMutiMsgDeSerializer::getMsgLength(uint8_t* buf)
 {
 	uint32_t* LengthOfName = (uint32_t*)buf;
 	int strl = *LengthOfName+ ((*LengthOfName)%4 == 0?0:(4- (*LengthOfName%4)));
-	return str1+12;
+	return strl+12;
 }
 
 CLCAMessage* CLCAGETPKMutiMsgDeSerializer::DeSerializer(uint8_t* buf)

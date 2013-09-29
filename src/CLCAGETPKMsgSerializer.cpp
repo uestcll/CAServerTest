@@ -1,7 +1,7 @@
 #include "CLCAGETPKMsgSerializer.h"
 #include "CLCAMessage.h"
 #include "CLCAGETPKMessage.h"
-#include <sting.h>
+#include <string.h>
 #include <iostream>
 
 using namespace std;
