@@ -7,6 +7,12 @@
 
 CLCAAddressIPV4::CLCAAddressIPV4(const uint8_t* IP,uint16_t Port):CLCAAddress(IP,Port)
 {
+	Initialize();
+}
+
+
+CLCAAddressIPV4::~CLCAAddressIPV4()
+{
 
 }
 

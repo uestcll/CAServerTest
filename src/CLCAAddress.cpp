@@ -5,7 +5,7 @@ CLCAAddress::CLCAAddress(const uint8_t* IP,uint16_t Port)
 {
 	m_IP = IP;
 	m_Port = Port;
-	Initialize();
+	
 }
 
 CLCAAddress::~CLCAAddress()

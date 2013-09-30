@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 CLSocket::CLSocket(const uint8_t* IP,uint16_t Port,bool isneeded,int socketType /* = AF_INET */,int socketStream /* = SOCK_STREAM */)
 {
@@ -53,7 +55,7 @@ void CLSocket::Initialize()
 int CLSocket::setNonBlock()
 {
 	int flags;
-	flags = fcntl(sock, F_GETFL,NULL);
+	flags = fcntl(sock, F_GETFL,0);
 	if(flags < 0)
 	{
 		return flags;
@@ -91,7 +93,9 @@ int CLSocket::AcceptSocket()
 {
 	if(isInput)
 		return -1;
-	return accept(sock,their_addr,sizeof(their_addr));
+
+	socklen_t len = sizeof(their_addr);
+	return accept(sock,their_addr,&len);
 }
 
 int CLSocket::WriteSocket(uint8_t* buf,uint32_t writeLen)
@@ -117,7 +121,7 @@ int CLSocket::SendSocket(uint8_t* buf,uint32_t sendLen)
 
 uint8_t* CLSocket::ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen)
 {
-	*HasReadLen = receive(sock,buf,receiveLen,0);
+	*HasReadLen = recv(sock,buf,receiveLen,0);
 	return buf;
 }
 

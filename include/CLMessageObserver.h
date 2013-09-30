@@ -6,6 +6,7 @@
 #include "CLCAClientContext.h"
 
 class CLMessageObserver;
+class CLCAServerManager;
 
 struct HandlerContext
 {

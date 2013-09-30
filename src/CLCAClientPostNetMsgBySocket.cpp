@@ -18,6 +18,11 @@ CLCAClientPostNetMsgBySocket::CLCAClientPostNetMsgBySocket(uint8_t IPType,uint8_
 	Initialize();
 }
 
+CLCAClientPostNetMsgBySocket::~CLCAClientPostNetMsgBySocket()
+{
+
+}
+
 void CLCAClientPostNetMsgBySocket::PostNetMessage(uint8_t* msg,uint32_t length)
 {
 	writeNetMsg(msg,length);

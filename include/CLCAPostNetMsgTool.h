@@ -11,7 +11,9 @@ class CLCAPostNetMsgTool
 public:
 	virtual void PostNetMessage(uint8_t* msg,uint32_t length) = 0;
 	virtual void* ReadFromNet() = 0;
+
 	CLCAPostNetMsgTool(uint8_t IPType,uint8_t* IP,uint16_t Port);
+	virtual ~CLCAPostNetMsgTool();
 protected:
 	uint8_t m_IPType;
 	uint8_t* m_IP;//ipv6 128λ  ipv4 32λ

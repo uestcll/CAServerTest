@@ -1,6 +1,7 @@
 #ifndef CLPROTOCOLDECAPSULATOR_H
 #define CLPROTOCOLDECAPSULATOR_H
 
+#include <stdint.h>
 class CLProtocolDecapsulator
 {
 public:

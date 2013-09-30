@@ -23,3 +23,9 @@ CLCAPostNetMsgTool::CLCAPostNetMsgTool(uint8_t IPType,uint8_t* IP,uint16_t Port)
 	m_Port = Port;
 
 }
+
+CLCAPostNetMsgTool::~CLCAPostNetMsgTool()
+{
+	if(m_IP != 0)
+		delete m_IP;
+}

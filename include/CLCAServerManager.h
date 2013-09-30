@@ -10,9 +10,9 @@
 #include <map>
 #define  PORT 19999
 
+class CLMessageObserver;
 
-
-typedef void (CLMessageObserver::*Handler)(void*);
+typedef void (*Handler)(void*);
 class CLCAServerManager
 {
 

@@ -17,7 +17,8 @@ CLServerMessageObserver::~CLServerMessageObserver()
 void CLServerMessageObserver::Initialize(CLCAServerManager* Manager,void* pContext)
 {
 	manager = Manager;
-	manager->RegisterHandler(PK_FORSGET,(Handler)(&CLServerMessageObserver::HandlerForGETPKMsg));
+	manager->RegisterHandler(PK_FORSGET,(Handler)(&CLServerMessageObserver::HandlerForSGETPKMsg));
+	manager->RegisterHandler(PK_FORMGET,(Handler)(&CLServerMessageObserver::HandlerForMGETPKMsg));
 }
 
 void CLServerMessageObserver::HandlerForSGETPKMsg(void* pContext)
@@ -29,7 +30,7 @@ void CLServerMessageObserver::HandlerForSGETPKMsg(void* pContext)
 
 	CLServerMessageObserver* observer = (CLServerMessageObserver*)context->MsgObserver;
 	CLCAClientContext* clientcon = context->context;
-	CLCAGETPKMessage* message = dynamic_cast<CLCAGETPKMessage*>msg;
+	CLCAGETPKMessage* message = dynamic_cast<CLCAGETPKMessage*>(msg);
 	if(message == 0)
 		return;
 
