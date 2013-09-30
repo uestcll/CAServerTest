@@ -35,7 +35,7 @@ void* CLDataReceviverBySocket::getData()
 	if(con_client->isDcpsHead())
 	{
 		HeadBuf = new uint8_t[8];
-		m_socket->ReadSocket(8,HeadBuf,&ReadLen,con_client->sock);
+		con_client->m_sock->ReadSocket(8,HeadBuf,&ReadLen);
 		FullLen = m_PtcDcps->DecapsulateProtocolHeadForLength(HeadBuf,4);
 		con_client->FullLen = FullLen;
 		con_client->MsgType = m_PtcDcps->DecapsulateProtocolHeadForMsgType(HeadBuf,0);
@@ -48,7 +48,7 @@ void* CLDataReceviverBySocket::getData()
 
 
 	readLength = con_client->FullLen - con_client->HasReadLen;
-	m_socket->ReadSocket(readLength,con_client->buf+con_client->HasReadLen,&ReadLen,con_client->sock);
+	con_client->m_sock->ReadSocket(readLength,con_client->buf+con_client->HasReadLen,&ReadLen);
 	con_client->HasReadLen += ReadLen;
 
 	return con_client;
