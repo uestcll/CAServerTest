@@ -23,7 +23,12 @@ void CLCAAddressIPV4::Initialize()
 	memset((char*)addr_ipv4,0,sizeof(addr_ipv4));
 	addr_ipv4->sin_family = AF_INET;
 	addr_ipv4->sin_port = htons(m_Port);
-	inet_pton(AF_INET,(char*)m_IP,(void*)&addr_ipv4->sin_addr);
+
+	if(m_IP == 0)
+		addr_ipv4->sin_addr.s_addr = INADDR_ANY;
+	else
+		inet_pton(AF_INET,(char*)m_IP,(void*)&addr_ipv4->sin_addr);
+
 	addr = (struct sockaddr*)addr_ipv4;
 }
 

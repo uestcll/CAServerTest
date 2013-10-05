@@ -1,9 +1,12 @@
 #include "CLCAClientPostNetMsgBySocket.h"
 #include "CLCAPostNetMsgTool.h"
 #include "CLCAGETPKMsgSerializer.h"
+#include "CLCAMessage.h"
+#include "CLCAGETPKMessage.h"
 #include "CLCASerializer.h"
 #include "CLCADeSerializer.h"
 #include "CLCAClientContext.h"
+#include <sting.h>
 
 #define  SERVER_IP "192.168.0.1"
 #define  SERVER_PORT 19999

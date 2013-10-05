@@ -5,6 +5,10 @@
 #include "CLCAGETPKMsgDeSerializer.h"
 #include "CLCAServer.h"
 #include "CLCAServerManager.h"
+#include "CLCAServerByEpoll.h"
+#include "CLMessageObserver.h"
+#include "CLServerMessageObserver.h"
+
 using namespace std;
 
 int main()
