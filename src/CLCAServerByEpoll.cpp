@@ -23,9 +23,12 @@ int CLCAServerByEpoll::Accept()
 
 void CLCAServerByEpoll::Initialize()
 {
+	m_sock->BindSocket();
+	m_sock->ListenSocket(5);
+	m_sock->setNonBlock();
 	m_epoll = new CLEpoll();
 	m_epoll->Register_ctl(EPOLL_CTL_ADD,m_sock->getSock());
-	m_sock->setNonBlock();
+	
 	m_drev = new CLDataReceviverBySocket(m_sock);
 	
 }
@@ -42,6 +45,7 @@ list<CLCAClientContext*>* CLCAServerByEpoll::getData()
 	{
 		if(m_epoll->getEventFd(i) == m_sock->getSock())
 		{
+			cout<<"Accepted"<<endl;
 			int clientFd = m_sock->AcceptSocket();
 			CLSocket* sock = new CLSocket(clientFd);
 			sock->setNonBlock();
@@ -50,6 +54,7 @@ list<CLCAClientContext*>* CLCAServerByEpoll::getData()
 		}
 		else
 		{
+			cout<<"GetData From client"<<endl;
 			CLCAClientContext* clientData = getClientData(m_epoll->getEventFd(i));
 			if(clientData != 0 && clientData->isReadFull())
 			{

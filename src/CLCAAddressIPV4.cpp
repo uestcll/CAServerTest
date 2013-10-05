@@ -25,7 +25,7 @@ void CLCAAddressIPV4::Initialize()
 	addr_ipv4->sin_port = htons(m_Port);
 
 	if(m_IP == 0)
-		addr_ipv4->sin_addr.s_addr = INADDR_ANY;
+		addr_ipv4->sin_addr.s_addr = htonl(INADDR_ANY);
 	else
 		inet_pton(AF_INET,(char*)m_IP,(void*)&addr_ipv4->sin_addr);
 
