@@ -26,8 +26,8 @@ public:
 private:
 	CLCAGETPKMessage(const CLCAGETPKMessage&);
 
-public:
-	uint32_t FullLength;
+
+	
 };
 
 #endif

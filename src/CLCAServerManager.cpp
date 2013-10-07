@@ -11,6 +11,13 @@
 
 using namespace std;
 
+#ifdef GETSPKMsg_Debug
+#include <gtest/gtest.h>
+#include <string.h>
+int msg_id = 0;
+char* PostMsgName = "TestServer";
+#endif
+
 CLCAServerManager::CLCAServerManager(CLMessageObserver* msgObserver)
 {
 	server = new CLCAServerByEpoll(0,PORT);
@@ -54,6 +61,10 @@ void CLCAServerManager::RunLoop()
 		server->start();
 		client_list = server->getData();
 		Dispatch(client_list);
+#ifdef GETSPKMsg_Debug
+		if(msg_id == 100)
+			break;
+#endif
 	}
 }
 
@@ -81,7 +92,20 @@ void CLCAServerManager::Dispatch(void* pContext)
 		CLCAMessage* msg = 0;
 
 		msg = DeSer_it->second->DeSerializer((*it)->buf);
-
+#ifdef GETSPKMsg_Debug
+		char* msgName = new char[20];
+		memset(msgName,0,20);
+		sprintf(msgName,"%s%d",PostMsgName,msg_id);
+		CLCAGETPKMessage* testMsg = (CLCAGETPKMessage*)msg;
+		EXPECT_FALSE(msg == 0);
+		EXPECT_EQ(testMsg->LengthOfName,strlen(msgName)+1);
+		EXPECT_FALSE(strcmp(testMsg->Name,msgName));
+		EXPECT_EQ(testMsg->PKType,1);
+		EXPECT_EQ(testMsg->EchoID,msg_id);
+		EXPECT_EQ(testMsg->m_MsgID,PK_FORSGET);
+		delete msgName;
+		msg_id++;
+#endif
 		Handler_it = map_Handler.find(MsgType);
 		if(Handler_it == map_Handler.end())
 			continue;
@@ -113,7 +137,7 @@ int CLCAServerManager::RegisterSerializer(uint32_t msgID,CLCASerializer* ser)
 {
 	map<uint32_t,CLCASerializer*> ::iterator it;
 	it = map_Ser.find(msgID);
-	if (it == map_Ser.end())
+	if (it != map_Ser.end())
 		return -1;
 	
 	map_Ser[msgID] = ser;
@@ -125,7 +149,7 @@ int CLCAServerManager::RegisterDeSerializer(uint32_t msgID,CLCADeSerializer* Des
 {
 	map<uint32_t,CLCADeSerializer*> ::iterator it;
 	it = map_DeSer.find(msgID);
-	if (it == map_DeSer.end())
+	if (it != map_DeSer.end())
 		return -1;
 
 	map_DeSer[msgID] = Deser;
@@ -137,7 +161,7 @@ int CLCAServerManager::RegisterHandler(uint32_t msgID,Handler handler)
 {
 	map<uint32_t,Handler> ::iterator it;
 	it = map_Handler.find(msgID);
-	if (it == map_Handler.end())
+	if (it != map_Handler.end())
 		return -1;
 
 	map_Handler[msgID] = handler;

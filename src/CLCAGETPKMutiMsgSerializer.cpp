@@ -1,16 +1,28 @@
 #include "CLCAGETPKMutiMsgSerializer.h"
 #include <string.h>
+#include <iostream>
+
+using namespace std;
 
 CLCAGETPKMutiMsgSerializer::CLCAGETPKMutiMsgSerializer()
 {
 	SingleMsgSer = new CLCAGETPKMsgSerializer;
-	strMsg.clear();
+	msg_list = new list<CLCAGETPKMessage*>;
+	
 }
 
 CLCAGETPKMutiMsgSerializer::~CLCAGETPKMutiMsgSerializer()
 {
 	delete SingleMsgSer;
-	strMsg.clear();
+	list<CLCAGETPKMessage*>::iterator it;
+	for(it = msg_list->begin();it != msg_list->end();it++)
+	{
+		if((*it) != 0)
+			delete (*it);
+
+	}
+
+	delete msg_list;
 }
 
 void CLCAGETPKMutiMsgSerializer::SerializeHead(uint32_t Type /* = PK_FORMGET */,uint32_t number)
@@ -19,35 +31,41 @@ void CLCAGETPKMutiMsgSerializer::SerializeHead(uint32_t Type /* = PK_FORMGET */,
 	MsgNum = number;
 	uint8_t* Head = new uint8_t[12];
 	memset(Head,0,12);
+	FullLength += 4;
 	uint32_t* type = (uint32_t*)Head;
+	uint32_t* len = (uint32_t*)(Head+4);
 	uint32_t* num = (uint32_t*)(Head+8);
 	*type = MsgType;
+	*len = FullLength;
 	*num = MsgNum;
-	strMsg.append((char*)Head,12);
-	FullLength += 4;
-	delete Head;
+	HeadBuf = Head;
 }
 
-void CLCAGETPKMutiMsgSerializer::Serialize(CLCAMessage* message)
+uint8_t* CLCAGETPKMutiMsgSerializer::Serialize(CLCAMessage* message)
 {
-
-		SingleMsgSer->clearString();
-		SingleMsgSer->Serialize(message);
-		strMsg += SingleMsgSer->getBufString();
-		FullLength += SingleMsgSer->getLength();
+	
+		FullLength += message->FullLength;
+		msg_list->push_back((CLCAGETPKMessage*)message->copy());
+		return 0;
 }
 
 uint8_t* CLCAGETPKMutiMsgSerializer::getSerializeChar()
 {
-	return (uint8_t*)strMsg.data();
+	uint8_t* buf = new uint8_t[FullLength+12];
+	memset(buf,0,FullLength+12);
+	CLCAGETPKMessage* msg = 0;
+	uint32_t HasWriteLen = 12;
+	uint8_t* tempbuf = 0;
+	list<CLCAGETPKMessage*>::iterator it;
+	for(it = msg_list->begin();it != msg_list->end();it++)
+	{
+		tempbuf = SingleMsgSer->Serialize(*it);
+		memcpy(buf+HasWriteLen,tempbuf,(*it)->FullLength);
+		delete tempbuf;
+		tempbuf = 0;
+
+	}
+
+	return buf;
 }
 
-void CLCAGETPKMutiMsgSerializer::SerializeLength()
-{
-	uint8_t* len = new uint8_t[4];
-	uint32_t* Len = (uint32_t*)len;
-	*Len = FullLength;
-	strMsg.replace(4,4,(char*)len);
-	delete len;
-	
-}

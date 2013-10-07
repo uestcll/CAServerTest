@@ -25,6 +25,7 @@ private:
 
 public:
 	uint32_t m_MsgID;
+	uint32_t FullLength;
 
 
 

@@ -20,7 +20,7 @@ void CLCAAddressIPV4::Initialize()
 {
 //	sock = socket(AF_INET,SOCK_STREAM,0);
 	addr_ipv4 = (sockaddr_in*)malloc(sizeof(struct sockaddr_in));
-	memset((char*)addr_ipv4,0,sizeof(sockaddr_in)));
+	memset((char*)addr_ipv4,0,sizeof(sockaddr_in));
 	addr_ipv4->sin_family = AF_INET;
 	addr_ipv4->sin_port = htons(m_Port);
 
