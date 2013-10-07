@@ -20,7 +20,7 @@ int main(int argc,char** argv)
 	serializer->SerializeHead(PK_FORSGET,1);
 	serializer->Serialize(msg);
 	serializer->SerializeLength();
-	clPostTool->PostNetMessage(serializer->getSerializeChar(),serializer->getLength());
+	clPostTool->PostNetMessage(serializer->getSerializeChar(),serializer->getFullLength());
 
 	delete msg;
 	delete serializer;

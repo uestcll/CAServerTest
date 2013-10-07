@@ -49,4 +49,5 @@ void CLCAGETPKMutiMsgSerializer::SerializeLength()
 	*Len = FullLength;
 	strMsg.replace(4,4,(char*)len);
 	delete len;
+	
 }

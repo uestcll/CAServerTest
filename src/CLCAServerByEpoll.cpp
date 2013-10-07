@@ -49,6 +49,7 @@ list<CLCAClientContext*>* CLCAServerByEpoll::getData()
 			int clientFd = m_sock->AcceptSocket();
 			CLSocket* sock = new CLSocket(clientFd);
 			sock->setNonBlock();
+			m_epoll->Register_ctl(EPOLL_CTL_ADD,sock->getSock());
 			CLCAClientContext* client = new CLCAClientContext(sock);
 		    client_lists->push_back(client);
 		}

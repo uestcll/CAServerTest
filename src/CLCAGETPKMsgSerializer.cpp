@@ -65,7 +65,7 @@ void CLCAGETPKMsgSerializer::clearString()
 
 uint8_t* CLCAGETPKMsgSerializer::getSerializeChar()
 {
-	return (uint8_t*)strmessage.data();
+	return (uint8_t*)strmessage.c_str();
 }
 
 void CLCAGETPKMsgSerializer::SerializeLength()

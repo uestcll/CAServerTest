@@ -22,13 +22,13 @@ public:
 	int ListenSocket(int listenType = 0);
 	int AcceptSocket();
 	int WriteSocket(uint8_t* buf,uint32_t writeLen);
-	int WriteSocket(uint8_t* buf,uint32_t writeLen,int writeSock);
+//	int WriteSocket(uint8_t* buf,uint32_t writeLen,int writeSock);
 	uint8_t* ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen);
-	uint8_t* ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen,int readSock);
+//	uint8_t* ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen,int readSock);
 	int SendSocket(uint8_t* buf,uint32_t sendLen);
-	int SendSocket(uint8_t* buf,uint32_t sendLen,int sendSock);
+//	int SendSocket(uint8_t* buf,uint32_t sendLen,int sendSock);
 	uint8_t* ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen);
-	uint8_t* ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen,int receiveSock);
+//	uint8_t* ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen,int receiveSock);
 	int getSock();
 	
 private:

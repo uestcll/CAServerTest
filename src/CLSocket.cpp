@@ -94,7 +94,7 @@ int CLSocket::AcceptSocket()
 	if(isInput)
 		return -1;
 
-	socklen_t len = sizeof(their_addr);
+	socklen_t len = sizeof(sockaddr);
 	return accept(sock,their_addr,&len);
 }
 

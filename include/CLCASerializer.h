@@ -12,6 +12,7 @@ public:
 	virtual void SerializeLength() = 0;
 	virtual uint8_t* getSerializeChar() = 0;
 	uint32_t getLength();
+	uint32_t getFullLength();
 
 	CLCASerializer();
 	virtual ~CLCASerializer();

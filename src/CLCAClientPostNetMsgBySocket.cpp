@@ -54,7 +54,7 @@ int CLCAClientPostNetMsgBySocket::writeNetMsg(uint8_t* msg,uint32_t length)
 	while(HasWriteLen<length)
 	{
 	
-		writeLen = sock->WriteSocket(msg+HasWriteLen,len);
+		writeLen = sock->WriteSocket(buf+HasWriteLen,len);
 		HasWriteLen += writeLen;
 		len -= writeLen;
 	}
