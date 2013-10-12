@@ -25,5 +25,8 @@
 #include "CLProtocolDecapsulator.h"
 #include "CLServerMessageObserver.h"
 #include "CLSocket.h"
+#include "CLCAREGETPKMessage.h"
+#include "CLCAREGETPKMsgSerializer.h"
+#include "CLCAREGETPKMsgDeSerializer.h"
 
 #endif

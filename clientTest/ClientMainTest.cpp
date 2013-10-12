@@ -1,12 +1,8 @@
-#include "CLCAClientPostNetMsgBySocket.h"
-#include "CLCAPostNetMsgTool.h"
-#include "CLCAGETPKMsgSerializer.h"
-#include "CLCAMessage.h"
-#include "CLCAGETPKMessage.h"
-#include "CLCASerializer.h"
-#include "CLCADeSerializer.h"
-#include "CLCAClientContext.h"
+#include "HeadFile.h"
 #include <string.h>
+#include <iostream>
+
+using namespace std;
 
 #define  SERVER_IP "127.0.0.1"
 #define  SERVER_PORT 8080
@@ -26,7 +22,16 @@ int main(int argc,char** argv)
 	delete serializer;
 
 	CLCAClientContext* context = (CLCAClientContext*)clPostTool->ReadFromNet();
-
-
+	
+	CLCAREGETPKMsgDeSerializer* deser = new CLCAREGETPKMsgDeSerializer;
+	CLCAREGETPKMessage* remsg = (CLCAREGETPKMessage*)deser->DeSerializer(context->buf);
+	cout<<"responsed msg is:"<<endl;
+	cout<<"isSuccess:"<<remsg->isSuccess<<endl;
+	cout<<"errorno:"<<remsg->errorno<<endl;
+	cout<<"pklen:"<<remsg->len<<endl;
+	cout<<"echoId:"<<remsg->EchoId<<endl;
+	delete deser;
+	delete remsg;
+	delete context;
 	delete clPostTool;
 }

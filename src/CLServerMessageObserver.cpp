@@ -3,6 +3,8 @@
 #include "CLCAMessage.h"
 #include "CLCAGETPKMessage.h"
 #include "CLCAClientContext.h"
+#include "CLCAREGETPKMessage.h"
+#include "CLCAREGETPKMsgSerializer.h"
 
 CLServerMessageObserver::CLServerMessageObserver()
 {
@@ -34,7 +36,16 @@ void CLServerMessageObserver::HandlerForSGETPKMsg(void* pContext)
 	if(message == 0)
 		return;
 
-	
+	CLCAREGETPKMessage* remsg = new CLCAREGETPKMessage(0,1,0,0,message->EchoID);
+	CLCASerializer* ser = new CLCAREGETPKMsgSerializer;
+	ser->Serialize(remsg);
+	ser->SerializeHead(PK_FORRESGET,1);
+	uint8_t* serchar = ser->getSerializeChar();
+	clientcon->m_sock->WriteSocket(serchar,ser->getFullLength());
+	delete remsg;
+	delete ser;
+	delete serchar;
+
 
 }
 

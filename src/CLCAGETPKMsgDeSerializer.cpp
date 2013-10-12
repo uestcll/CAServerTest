@@ -22,5 +22,6 @@ CLCAMessage* CLCAGETPKMsgDeSerializer::DeSerializer(uint8_t* buf)
 	uint32_t* pkType = (uint32_t*)(buf+4+strl);
 	uint32_t* echoId = (uint32_t*)(buf+4+strl+4);
 	CLCAGETPKMessage* msg = new CLCAGETPKMessage(*LengthOfName,Name,*pkType,*echoId);
+	delete Name;
 	return msg;
 }
