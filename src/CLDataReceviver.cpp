@@ -1,32 +1,22 @@
 #include "CLDataReceviver.h"
 
-CLDataReceviver::CLDataReceviver(CLProtocolDecapsulator* ptcDcps)
+CLDataReceviver::CLDataReceviver(uint32_t BufSize /* = BUFSIZE */)
 {
-	m_PtcDcps = ptcDcps;
-	isDeleted = false;
-}
-
-CLDataReceviver::CLDataReceviver()
-{
-	m_PtcDcps = new CLProtocolDecapsulator;
-	isDeleted = true;
+	buf_size = BufSize;
+	m_buf = 0;
+	m_HasReadSize = 0xffffffff;
 }
 
 CLDataReceviver::~CLDataReceviver()
 {
-	if(isDeleted)
-	delete m_PtcDcps;
+	
 }
 
 void CLDataReceviver::setContext(void* pContext)
 {
 	m_pContext = pContext;
 }
-
-void CLDataReceviver::setProtocolDecapsulator(CLProtocolDecapsulator* ptcDcps)
+uint32_t CLDataReceviver::getDataSize()
 {
-	if(isDeleted)
-		delete m_PtcDcps;
-	m_PtcDcps = ptcDcps;
-	isDeleted = false;
+	return m_HasReadSize;
 }

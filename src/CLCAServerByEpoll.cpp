@@ -92,6 +92,7 @@ CLCAClientContext* CLCAServerByEpoll::getClientData(int clientfd)
 
 int CLCAServerByEpoll::writeData(int sock,uint8_t* buf)
 {
+
 	return 0;
 }
 

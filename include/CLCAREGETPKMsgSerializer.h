@@ -1,5 +1,7 @@
 #ifndef CLCAREGETPKMSGSERIALIZER_H
 #define CLCAREGETPKMSGSERIALIZER_H
+#include "CLCASerializer.h"
+#include <stdint.h>
 
 class CLCAREGETPKMsgSerializer : public CLCASerializer
 {

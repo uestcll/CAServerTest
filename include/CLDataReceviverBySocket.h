@@ -11,18 +11,17 @@ class CLDataReceviverBySocket:public CLDataReceviver
 {
 
 public:
-	CLDataReceviverBySocket(CLProtocolDecapsulator* ptcDcps,CLSocket* socket);
+	
 	CLDataReceviverBySocket(CLSocket* socket);
 	virtual ~CLDataReceviverBySocket();
 
 	virtual void Initialize();
-	virtual void* getData();
+	virtual void* getData(uint32_t readSize = 0xffffffff);
 	virtual void setContext(void* pContext);
 
 private:
-
+	uint32_t m_ReadSize;
 	CLSocket* m_socket;
-	CLCAClientContext* con_client;
 
 };
 #endif

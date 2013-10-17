@@ -10,7 +10,7 @@ int main(int argc,char** argv)
 {
 	CLCAPostNetMsgTool* clPostTool = new CLCAClientPostNetMsgBySocket(AF_INET,(uint8_t*)SERVER_IP,SERVER_PORT);
 	char* name = "TestServer";
-	CLCAGETPKMessage* msg = new CLCAGETPKMessage(strlen(name)+1,(uint8_t*)name,1,0);
+	CLCAGETPKMessage* msg = new CLCAGETPKMessage(strlen(name)+1,(uint8_t*)name,1,999);
 	CLCASerializer* serializer = new CLCAGETPKMsgSerializer;
 	
 	

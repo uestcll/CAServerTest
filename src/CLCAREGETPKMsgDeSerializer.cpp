@@ -20,7 +20,7 @@ CLCAMessage* CLCAREGETPKMsgDeSerializer::DeSerializer(uint8_t* buf)
 	uint32_t* len = (uint32_t*)(buf+4);
 	uint32_t* echoId = (uint32_t*)(buf+8);
 	uint8_t* pk = new uint8_t[*len];
-	memcpy(pk,buf+12);
+	memcpy(pk,buf+12,*len);
 	CLCAMessage* msg =  new CLCAREGETPKMessage(*isSuccess,*errorno,*len,pk,*echoId);
 	delete pk;
 	return msg;

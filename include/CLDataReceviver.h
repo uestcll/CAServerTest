@@ -1,23 +1,24 @@
 #ifndef CLDATARECEVIVER_H
 #define CLDATARECEVIVER_H
+#include <stdint.h>
 
-#include "CLProtocolDecapsulator.h"
+const uint32_t BUFSIZE =  4*1024;
 
 class CLDataReceviver
 {
 public:
-	CLDataReceviver(CLProtocolDecapsulator* ptcDcps);
-	CLDataReceviver();
+	CLDataReceviver(uint32_t BufSize = BUFSIZE);
 	virtual ~CLDataReceviver();
 
-	void setProtocolDecapsulator(CLProtocolDecapsulator* ptcDcps);
 	virtual void setContext(void* pContext);
-	virtual void* getData() = 0;
+	virtual void* getData(uint32_t readSize) = 0;
 	virtual void Initialize() = 0;
+	virtual uint32_t getDataSize();
 
 protected:
-	CLProtocolDecapsulator* m_PtcDcps;
-	bool isDeleted;
+	uint8_t* m_buf;
+	uint32_t buf_size;
 	void* m_pContext;
+	uint32_t m_HasReadSize;
 };
 #endif

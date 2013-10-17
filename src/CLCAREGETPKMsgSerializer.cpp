@@ -20,7 +20,7 @@ CLCAREGETPKMsgSerializer::~CLCAREGETPKMsgSerializer()
 		delete HeadBuf;
 }
 
-CLCAREGETPKMsgSerializer::SerializeHead(uint32_t Type ,uint32_t number )
+void CLCAREGETPKMsgSerializer::SerializeHead(uint32_t Type ,uint32_t number )
 {
 	m_nType = Type;
 	m_number = number;
@@ -32,7 +32,7 @@ CLCAREGETPKMsgSerializer::SerializeHead(uint32_t Type ,uint32_t number )
 	*len = FullLength;
 }
 
-CLCAREGETPKMsgSerializer::Serialize(CLCAMessage* message)
+uint8_t* CLCAREGETPKMsgSerializer::Serialize(CLCAMessage* message)
 {
 	CLCAREGETPKMessage* msg = (CLCAREGETPKMessage*)message;
 	if(msg == 0)

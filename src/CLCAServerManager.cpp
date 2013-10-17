@@ -11,12 +11,6 @@
 
 using namespace std;
 
-#ifdef GETSPKMsg_Debug
-#include <gtest/gtest.h>
-#include <string.h>
-int msg_id = 0;
-char* PostMsgName = "TestServer";
-#endif
 
 CLCAServerManager::CLCAServerManager(CLMessageObserver* msgObserver)
 {
@@ -61,10 +55,7 @@ void CLCAServerManager::RunLoop()
 		server->start();
 		client_list = server->getData();
 		Dispatch(client_list);
-#ifdef GETSPKMsg_Debug
-		if(msg_id == 100)
-			break;
-#endif
+
 	}
 }
 
