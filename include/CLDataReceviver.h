@@ -14,11 +14,15 @@ public:
 	virtual void* getData(uint32_t readSize) = 0;
 	virtual void Initialize() = 0;
 	virtual uint32_t getDataSize();
+	virtual int geterrno();
+	bool IsReceviveAll();
 
 protected:
 	uint8_t* m_buf;
 	uint32_t buf_size;
 	void* m_pContext;
 	uint32_t m_HasReadSize;
+	int m_errno;
+	bool m_IsReceviveAll;
 };
 #endif

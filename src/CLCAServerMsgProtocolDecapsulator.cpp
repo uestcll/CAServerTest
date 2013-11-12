@@ -8,9 +8,17 @@ CLCAServerMsgProtocolDecapsulator::CLCAServerMsgProtocolDecapsulator(uint8_t* In
 {
 	startBlockIndex = 0;
 	startIndexInBlock = 0;
-	m_NeededBufSize = 0;
+	m_NeededBufSize = 0xffffffff;
 	LeftBuffer = 0;
 	
+}
+
+CLCAServerMsgProtocolDecapsulator::CLCAServerMsgProtocolDecapsulator():CLProtocolDecapsulator()
+{
+	startBlockIndex = 0;
+	startIndexInBlock = 0;
+	m_NeededBufSize = 0xffffffff;
+	LeftBuffer = 0;
 }
 
 CLCAServerMsgProtocolDecapsulator::~CLCAServerMsgProtocolDecapsulator()
@@ -31,7 +39,7 @@ void CLCAServerMsgProtocolDecapsulator::ProtocolDecapsulate()
 		return;
 	}
 
-	PtlDcpstInput* in = input_vec[startBlockIndex];
+	PtlDcpstInput* in = input_vec->at(startBlockIndex);
 	while(startBlockIndex < input_vec->size())
 	{
 		decapsualteSingle(in->Inchar,in->InSize);
@@ -80,6 +88,7 @@ void CLCAServerMsgProtocolDecapsulator::decapsualteSingle(uint8_t* buf,uint32_t 
 				memcpy(Buf,buf_LeftBuffer,LeftBufferSize);
 				if(IsDeleted)
 					delete buf_LeftBuffer;
+
 				memcpy(Buf+LeftBufferSize,buf,8 - LeftBufferSize);
 				Length = (uint32_t*)(Buf+4);
 				FullLength = *Length;
@@ -161,10 +170,10 @@ void CLCAServerMsgProtocolDecapsulator::decapsualteSingle(uint8_t* buf,uint32_t 
 	return;
 }
 
-void* CLCAServerMsgProtocolDecapsulator::getDecapsulatorChar()
+vector<CLBuffer*>* CLCAServerMsgProtocolDecapsulator::getDecapsulatorMsgChar()
 {
 	vector<CLBuffer*>* ret = ret_vec;
-	ret_vec = 0;
+	ret_vec = new std::vector<CLBuffer*>;
 	return ret;
 
 }

@@ -1,7 +1,9 @@
 #include "CLCASerializer.h"
+
 CLCASerializer::CLCASerializer()
 {
 	FullLength = 0;
+	ReStart = false;
 }
 
 CLCASerializer::~CLCASerializer()

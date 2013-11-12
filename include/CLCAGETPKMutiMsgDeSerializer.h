@@ -3,6 +3,7 @@
 
 #include "CLCADeSerializer.h"
 #include "stdint.h"
+#include <vector>
 
 class CLCAMessage;
 class CLCAGETPKMsgDeSerializer;
@@ -14,11 +15,10 @@ public:
 	CLCAGETPKMutiMsgDeSerializer();
 	virtual ~CLCAGETPKMutiMsgDeSerializer();
 
-	virtual CLCAMessage* DeSerializer(uint8_t* buf);
+	virtual std::vector<CLCAMessage*>* DeSerializer(CLBuffer* Buf,uint32_t startindex);
 
 private:
 	void getMsgNumber(uint8_t* buf);
-	int getMsgLength(uint8_t* buf);
 
 private:
 

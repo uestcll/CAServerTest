@@ -14,10 +14,10 @@ CLSocket::CLSocket(const uint8_t* IP,uint16_t Port,bool isneeded,int socketType 
 	SocketStream = socketStream;
 	isNeeded = isneeded;
 	if(SocketType == AF_INET)
-		address = new CLCAAddressIPV4(IP,Port);
+		address = new CLCAAddressIPV4(IP,Port); //可能发生异常
 	else
 		address = new CLCAAddressIPV4(IP,Port);//应该为ipv6  暂时写为ipv4
-	Initialize();
+	Initialize();//可能发生异常
 
 }
 
@@ -37,7 +37,13 @@ CLSocket::~CLSocket()
 		delete address;
 	if(isNeeded)
 		delete their_addr;
-	close(sock);
+
+	if(!isInput)
+	{
+		int ret = close(sock);
+		if( ret != 0)
+			throw "In CLSocket::~CLSocket(), close error";
+	}
 }
 
 void CLSocket::Initialize()
@@ -48,6 +54,8 @@ void CLSocket::Initialize()
 	else
 		their_addr = 0;
 	isInput = false;
+	if(sock == -1)
+		throw "In CLSocket::Initialize, socket error";
 }
 
 
@@ -75,6 +83,7 @@ int CLSocket::ConnectSocket()
 		return -1;
 
 	return connect(sock,address->getAddr(),address->getAddrSize());
+	// 异常返回-1
 }
 
 int CLSocket::BindSocket()
@@ -82,11 +91,13 @@ int CLSocket::BindSocket()
 	if(isInput)
 		return -1;
 	return bind(sock,address->getAddr(),address->getAddrSize());
+	//异常返回-1
 }
 
 int CLSocket::ListenSocket(int listenType /* = 0 */)
 {
 	return listen(sock,listenType);
+	//异常返回-1
 }
 
 int CLSocket::AcceptSocket()
@@ -96,6 +107,7 @@ int CLSocket::AcceptSocket()
 
 	socklen_t len = sizeof(sockaddr);
 	return accept(sock,their_addr,&len);
+	//异常返回-1
 }
 
 int CLSocket::WriteSocket(uint8_t* buf,uint32_t writeLen)
@@ -103,11 +115,19 @@ int CLSocket::WriteSocket(uint8_t* buf,uint32_t writeLen)
 	return write(sock,buf,writeLen);
 }
 
-
-uint8_t* CLSocket::ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen)
+int CLSocket::WritevSocket(struct iovec* vec,int count)
 {
-	*HasReadLen = read(sock,buf,readLen);
-	return buf;
+	return writev(sock,vec,count);
+}
+
+int CLSocket::ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen)
+{
+	int len = read(sock,buf,readLen);
+	if(len >= 0)
+		*HasReadLen = len; 
+	else
+		*HasReadLen = 0;
+	return len;
 }
 
 
@@ -119,12 +139,21 @@ int CLSocket::SendSocket(uint8_t* buf,uint32_t sendLen)
 
 
 
-uint8_t* CLSocket::ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen)
+int CLSocket::ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen)
 {
-	*HasReadLen = recv(sock,buf,receiveLen,0);
-	return buf;
+	int len = recv(sock,buf,receiveLen,0);
+
+	if(len >= 0)
+		*HasReadLen = len;
+	else
+		*HasReadLen = 0;
+	return len;
 }
 
+int CLSocket::CloseSocket()
+{
+	return close(sock);
+}
 
 int CLSocket::getSock()
 {

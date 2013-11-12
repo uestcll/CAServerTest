@@ -1,7 +1,9 @@
 #ifndef CLCASERIALIZER_H
 #define CLCASERIALIZER_H
-#include <stdint.h>
+
+
 #include "CLCAMessage.h"
+#include <stdint.h>
 
 
 class CLCASerializer
@@ -17,6 +19,7 @@ public:
 	virtual ~CLCASerializer();
 protected:
 	uint32_t FullLength;
+	bool ReStart;
 
 };
 

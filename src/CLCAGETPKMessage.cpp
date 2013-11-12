@@ -6,14 +6,8 @@ CLCAGETPKMessage::CLCAGETPKMessage(uint32_t lengthOfName,uint8_t* name,uint32_t 
 	LengthOfName = lengthOfName;
 	Name = new uint8_t[lengthOfName];
 	memcpy(Name,name,lengthOfName);
+	
 	uint32_t reservedLen = lengthOfName%4 == 0?0:(4-lengthOfName%4);
-	if(reservedLen >0)
-	{
-		Reserved = new uint8_t[reservedLen];
-		memset(Reserved,0,reservedLen);
-	}
-	else
-		Reserved = 0;
 
 	PKType = pkType;
 	EchoID = echoID;

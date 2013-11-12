@@ -14,21 +14,23 @@ public:
 	virtual ~CLCAServerByEpoll();
 //	static CLCAServerByEpoll* GetInstance();
 
-	virtual void Initialize();
+	virtual void Initialize(CLDataReceviver* recv);
 	virtual int Accept();
-	virtual std::list<CLCAClientContext*>* getData();
-	virtual int  writeData(int sock,uint8_t* buf);
+	virtual std::vector<CLIENT_MSG_INFO>* getData();
+	virtual int  writeData(std::vector<CLCAMessage*>* msg_vec,int sock,bool IsMutiMsg,uint32_t MsgId);
 	virtual void start();
+	virtual void run();
 
 
 private:
-	CLCAClientContext* getClientData(int clientfd);
-
+	CLIENT_CLBUFFER_INFO* getClientData(int clientfd);
+	int HandleAccept(int clientfd);
+	void FreeClientFd(int clientfd);
 private:
 //	static CLCAServerByEpoll* server;
 	CLEpoll* m_epoll;
 	int nfds;
-	CLDataReceviver* m_drev;
+	std::vector<CLIENT_CLBUFFER_INFO*>* client_MsgBuf;
 
 };
 #endif

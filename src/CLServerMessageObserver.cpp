@@ -5,6 +5,8 @@
 #include "CLCAClientContext.h"
 #include "CLCAREGETPKMessage.h"
 #include "CLCAREGETPKMsgSerializer.h"
+#include "CLSqlite.h"
+#include "CLLogger.h"
 
 CLServerMessageObserver::CLServerMessageObserver()
 {
@@ -23,33 +25,135 @@ void CLServerMessageObserver::Initialize(CLCAServerManager* Manager,void* pConte
 	manager->RegisterHandler(PK_FORMGET,(Handler)(&CLServerMessageObserver::HandlerForMGETPKMsg));
 }
 
+void CLServerMessageObserver::WriteNetMsg(vector<CLCAMessage*>* msg_vec,int sock,bool IsMutiMsg,uint32_t MsgId)
+{
+	manager->WriteMsg(msg_vec,sock);
+}
+
 void CLServerMessageObserver::HandlerForSGETPKMsg(void* pContext)
 {
-	HandlerContext* context = (HandlerContext*)pContext;
-	CLCAMessage* msg = context->msg;
-	if(msg->m_MsgID != PK_FORSGET)
+	if(pContext == 0 )
 		return;
+	try
+	{
+		HandlerStruct* hs = (HandlerStruct*)pContext;
+		CLMessageObserver* oberver = (CLMessageObserver*)hs->observer;
+		vector<CLCAMessage*>* vec = (vector<CLCAMessage*>*)hs->MsgData;
+		if(vec == 0 || vec->size() != 1 )
+		{
+			CLLogger::WriteLog("In CLServerMessageObserver::HandlerForSGETPKMsg(),vec size error",0);
+			return ;
+		}
 
-	CLServerMessageObserver* observer = (CLServerMessageObserver*)context->MsgObserver;
-	CLCAClientContext* clientcon = context->context;
-	CLCAGETPKMessage* message = dynamic_cast<CLCAGETPKMessage*>(msg);
-	if(message == 0)
-		return;
+		CLCAGETPKMessage* msg = dynamic_cast<CLCAGETPKMessage*>(vec->at(0));
+		if(msg == 0)
+		{
+			CLLogger::WriteLog("In CLServerMessageObserver::HandlerForSGETPKMsg(),msg error",0);
+			return ;
+		}
 
-	CLCAREGETPKMessage* remsg = new CLCAREGETPKMessage(0,1,0,0,message->EchoID);
-	CLCASerializer* ser = new CLCAREGETPKMsgSerializer;
-	ser->Serialize(remsg);
-	ser->SerializeHead(PK_FORRESGET,1);
-	uint8_t* serchar = ser->getSerializeChar();
-	clientcon->m_sock->WriteSocket(serchar,ser->getFullLength());
-	delete remsg;
-	delete ser;
-	delete serchar;
+		CLSqlite* sqlite = CLSqlite::getInstance();
+		int s = sqlite->sqlPKqueryexec(msg->Name,msg->PKType);
+		CLCAREGETPKMessage* reMsg = 0;
+		if(s == -1)
+		{
+			CLLogger::WriteLog("In CLServerMessageObserver::HandlerForSGETPKMsg(),sqlPKqueryexec error",0);
+			reMsg = new CLCAREGETPKMessage(UNSUCCESS,SQL_ERROR,0,0,msg->EchoID);
+			
+		}
+		else
+		{
+			uint8_t* pk = sqlite->getPKQueryResult();
+			if(pk == 0)
+				reMsg = new CLCAREGETPKMessage(UNSUCCESS,NOQUERY_ERROR,0,0,msg->EchoID);
+			else
+				reMsg = new CLCAREGETPKMessage(SUCCESS,NO_ERROR,strlen(pk),pk,msg->EchoID);
+
+		}
+
+		vector<CLCAMessage*>* vec = new vector<CLCAMessage*>;
+		vec->push_back(reMsg);
+
+		oberver->WriteNetMsg(vec,hs->sock,false);
+	}
+	catch(char* str)
+	{
+		CLLogger::WriteLog("In CLServerMessageObserver::HandlerForSGETPKMsg(),",0);
+		
+	}
 
 
 }
 
 void CLServerMessageObserver::HandlerForMGETPKMsg(void* pContext)
 {
+	if(pContext == 0)
+		return;
+
+	try
+	{
+		HandlerStruct* hs = (HandlerStruct*)pContext;
+		CLMessageObserver* observer = hs->observer;
+		vector<CLCAMessage*>* vec = (vector<CLCAMessage*>*)hs->MsgData;
+
+		if(vec == 0)
+		{
+			CLLogger::WriteLog("In CLServerMessageObserver::HandlerForMGETPKMsg(),vec null",0);
+			return;
+		}
+
+		CLCAGETPKMessage* msg = 0;
+		CLCAREGETPKMessage* remsg = 0;
+
+		CLSqlite* sql = CLSqlite::getInstance();
+		if(sql == 0)
+			throw "In CLServerMessageObserver::HandlerForMGETPKMsg(),sql null";
+
+		vector<CLCAREGETPKMessage*>* remsg_vec = new vector<CLCAREGETPKMessage*>;
+
+		int i = 0;
+		while(i< vec->size())
+		{
+			msg = dynamic_cast<CLCAGETPKMessage*>(vec->at(i));
+			if(msg == 0)
+			{
+				CLLogger::WriteLog("In CLServerMessageObserver::HandlerForMGETPKMsg(),msg null",0);
+				i++;
+				continue;
+			}
+
+			int ret = sql->sqlPKqueryexec(msg->Name,msg->PKType);
+			if(ret == -1)
+			{
+				CLLogger::WriteLog("In CLServerMessageObserver::HandlerForMGETPKMsg(),sqlPKqueryexec() error",0);
+				reMsg = new CLCAREGETPKMessage(UNSUCCESS,SQL_ERROR,0,0,msg->EchoID);
+			}
+			else
+			{
+				uint8_t* pk = sqlite->getPKQueryResult();
+				if(pk == 0)
+					reMsg = new CLCAREGETPKMessage(UNSUCCESS,NOQUERY_ERROR,0,0,msg->EchoID);
+				else
+					reMsg = new CLCAREGETPKMessage(SUCCESS,NO_ERROR,strlen(pk),pk,msg->EchoID);
+			}
+
+			remsg_vec->push_back(remsg);
+			i++;
+		}
+
+		observer->WriteNetMsg(remsg_vec,hs->sock,true,PK_FORREMGET);
+
+	}
+	catch (char* str)
+	{
+		CLLogger::WriteLog(str,0);
+	}
+}
+
+void CLServerMessageObserver::HandlerForSUPDATEMsg(void* pContext)
+{
+	if(pContext == 0)
+		return;
+
 
 }

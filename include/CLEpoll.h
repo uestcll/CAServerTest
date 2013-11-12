@@ -18,13 +18,15 @@ private:
 	struct epoll_event* events;
 	struct epoll_event* ev;
 	int MaxSize;
+	int nfds;
 
 public:
 	CLEpoll(int maxsize = EPOLL_SIZE);
 	virtual ~CLEpoll();
-	int Register_ctl(int op,int fd,uint32_t events = EPOLLIN | EPOLLET);
+	int Register_ctl(int op,int fd,int eventfd,void* ptr,uint32_t events = EPOLLIN | EPOLLET);
 	int EpollWait(int timeout = EPOLL_TIME_OUT);
 	epoll_event* getEvents();
-	int getEventFd(int index);
+	int getEventFd(int index,int* fd);
+	int getEventPtr(int index,void** ptr);
 };
 #endif

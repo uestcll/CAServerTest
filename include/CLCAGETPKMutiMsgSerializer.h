@@ -18,12 +18,15 @@ public:
 	virtual uint8_t* getSerializeChar();
 
 private:
+	void clearList();
+
+private:
 	CLCAGETPKMsgSerializer* SingleMsgSer;
 	uint8_t* HeadBuf;
 	uint8_t* MsgBuf;
 	uint32_t MsgNum;
 	uint32_t MsgType;
-	std::list<CLCAGETPKMessage*>* msg_list;
+	std::list<CLCAMessage*>* msg_list;
 
 };
 

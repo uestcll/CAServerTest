@@ -12,7 +12,7 @@ class CLDataReceviverBySocket:public CLDataReceviver
 
 public:
 	
-	CLDataReceviverBySocket(CLSocket* socket);
+	CLDataReceviverBySocket();
 	virtual ~CLDataReceviverBySocket();
 
 	virtual void Initialize();

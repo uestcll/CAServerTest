@@ -6,7 +6,7 @@
 class CLCAREGETPKMsgDeSerializer : public CLCADeSerializer
 {
 public:
-	virtual CLCAMessage* DeSerializer(uint8_t* buf);
+	virtual std::vector<CLCAMessage*>* DeSerializer(CLBuffer* Buf,uint32_t startindex);
 	CLCAREGETPKMsgDeSerializer();
 	virtual ~CLCAREGETPKMsgDeSerializer();
 };

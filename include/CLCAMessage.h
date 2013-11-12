@@ -1,13 +1,24 @@
 #ifndef CLCAMESSAGE_H
 #define CLCAMESSAGE_H
+
 #include <stdint.h>
 
 #define PK_FORSGET 1
 #define PK_FORMGET 2
 #define PK_FORRESGET 3
 #define PK_FORREMGET 4
-#define PK_FORUPDATE 5
-#define PK_FORREUPDATE 6
+#define PK_FORSUPDATE 5
+#define PK_FORRESUPDATE 6
+#define PK_FORMUPDATE 7
+#define PK_FORREMUPDATE 8
+
+const int SUCCESS = 1;
+const int UNSUCCESS = 0;
+
+#define NO_ERROR 0
+#define SQL_ERROR 1
+#define NOQUERY_ERROR 2
+#define MSGNULL_ERROR 3
 // 该类是所有相关认证操作的报文类，这里不包含报头。
 class CLCAMessage
 {

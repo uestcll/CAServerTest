@@ -28,7 +28,7 @@ void CLCAAddressIPV4::Initialize()
 		addr_ipv4->sin_addr.s_addr = htonl(INADDR_ANY);
 	else
 		inet_pton(AF_INET,(char*)m_IP,(void*)&addr_ipv4->sin_addr);
-
+	// 这里要进行异常判断。。。。。。
 	addr = (struct sockaddr*)addr_ipv4;
 }
 

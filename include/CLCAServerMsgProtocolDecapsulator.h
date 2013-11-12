@@ -7,10 +7,11 @@ class CLCAServerMsgProtocolDecapsulator : public CLProtocolDecapsulator
 {
 public:
 	CLCAServerMsgProtocolDecapsulator(uint8_t* InChar,uint32_t InSize);
+	CLCAServerMsgProtocolDecapsulator();
 	virtual ~CLCAServerMsgProtocolDecapsulator();
 
 	virtual void ProtocolDecapsulate();
-	virtual void* getDecapsulatorChar();
+	virtual std::vector<CLBuffer*>* getDecapsulatorMsgChar() ;
 	virtual void addCharToDecapsulate(uint8_t* Inchar,uint32_t InSize);
 
 private:

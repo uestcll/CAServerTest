@@ -10,7 +10,15 @@
 #include <map>
 #define  PORT 8080
 
+
 class CLMessageObserver;
+struct HandlerStruct
+{
+	int sock;
+	void* MsgData;  
+	CLMessageObserver* observer;
+};
+
 
 typedef void (*Handler)(void*);
 class CLCAServerManager
@@ -23,10 +31,13 @@ public:
 
 	virtual void Initialize();
 	virtual void RunLoop();
-    
-	virtual int RegisterSerializer(uint32_t msgID,CLCASerializer* ser);
-	virtual int RegisterDeSerializer(uint32_t msgID,CLCADeSerializer* Deser);
+
+	virtual int RegisterSerializer(uint32_t MsgId,CLCASerializer* ser);
+	virtual int RegisterDeSerializer(uint32_t MsgId,CLCADeSerializer* deser);
 	virtual int RegisterHandler(uint32_t msgID,Handler handler);
+
+	virtual void WriteMsg(std::vector<CLCAMessage*>* msg_vec,int sock,bool IsMutiMsg,uint32_t MsgId);
+	
 
 protected:
 	virtual void Dispatch(void* pContext);
@@ -36,8 +47,6 @@ protected:
 protected:
 	CLCAServer* server;
 	bool IsDeleteServer;
-	std::map<uint32_t ,CLCADeSerializer*> map_DeSer;
-	std::map<uint32_t ,CLCASerializer*> map_Ser;
 	std::map<uint32_t ,Handler> map_Handler;
 	CLMessageObserver* m_pMsgObserver;
 };

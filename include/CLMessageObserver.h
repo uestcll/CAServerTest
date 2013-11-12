@@ -3,18 +3,8 @@
 
 #include "CLCAServerManager.h"
 #include "CLCAMessage.h"
-#include "CLCAClientContext.h"
 
-class CLMessageObserver;
-class CLCAServerManager;
 
-struct HandlerContext
-{
-	CLCAMessage* msg;
-	CLMessageObserver* MsgObserver;
-	CLCAClientContext* context;
-	void* pContext;
-};
 
 class CLMessageObserver
 {
@@ -23,5 +13,6 @@ public:
 	virtual ~CLMessageObserver();
 
 	virtual void Initialize(CLCAServerManager* manager,void* pContext) = 0;
+	virtual void WriteNetMsg(std::vector<CLCAMessage*>* msg_vec,int sock,bool IsMutiMsg,uint32_t MsgId = 0);
 };
 #endif

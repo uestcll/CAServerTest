@@ -3,7 +3,7 @@
 
 #include "CLCAAddress.h"
 #include <stdint.h>
-
+#include <sys/uio.h>
 
 
 
@@ -21,14 +21,14 @@ public:
 	int BindSocket();
 	int ListenSocket(int listenType = 0);
 	int AcceptSocket();
+
 	int WriteSocket(uint8_t* buf,uint32_t writeLen);
-//	int WriteSocket(uint8_t* buf,uint32_t writeLen,int writeSock);
-	uint8_t* ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen);
-//	uint8_t* ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen,int readSock);
+	int WritevSocket(struct iovec* vec,int count);
+	int ReadSocket(uint32_t readLen,uint8_t* buf,uint32_t* HasReadLen);
 	int SendSocket(uint8_t* buf,uint32_t sendLen);
-//	int SendSocket(uint8_t* buf,uint32_t sendLen,int sendSock);
-	uint8_t* ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen);
-//	uint8_t* ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen,int receiveSock);
+	int ReceiveSocket(uint32_t receiveLen,uint8_t* buf,uint32_t* HasReadLen);
+	int CloseSocket();
+
 	int getSock();
 	
 private:
