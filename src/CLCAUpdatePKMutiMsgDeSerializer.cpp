@@ -29,7 +29,7 @@ vector<CLCAMessage*>* CLCAUpdatePKMutiMsgDeSerializer::DeSerializer(CLBuffer* Bu
 
 	if(-1 == Buf->setSuccessionIndex(startindex))
 	{
-		CLLogger::WriteLog("In CLCAUpdatePKMutiMsgDeSerializer::DeSerializer(),setSuccessionIndex error",0);
+		CLLogger::WriteLogMsg("In CLCAUpdatePKMutiMsgDeSerializer::DeSerializer(),setSuccessionIndex error",0);
 		return 0;
 	}
 
@@ -37,7 +37,7 @@ vector<CLCAMessage*>* CLCAUpdatePKMutiMsgDeSerializer::DeSerializer(CLBuffer* Bu
 	uint8_t* buf = Buf->getSuccessionBuf(4,&IsDeleted);
 	if(buf == 0)
 	{
-		CLLogger::WriteLog("In CLCAUpdatePKMutiMsgDeSerializer::DeSerializer(),getSuccessionIndex error",0);
+		CLLogger::WriteLogMsg("In CLCAUpdatePKMutiMsgDeSerializer::DeSerializer(),getSuccessionIndex error",0);
 		if(IsDeleted)
 			delete buf;
 

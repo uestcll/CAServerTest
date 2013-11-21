@@ -17,7 +17,7 @@ const int UNSUCCESS = 0;
 
 #define NO_ERROR 0
 #define SQL_ERROR 1
-#define NOQUERY_ERROR 2
+#define NORECORD_ERROR 2
 #define MSGNULL_ERROR 3
 // 该类是所有相关认证操作的报文类，这里不包含报头。
 class CLCAMessage

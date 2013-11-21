@@ -26,6 +26,8 @@ private:
 	CLIENT_CLBUFFER_INFO* getClientData(int clientfd);
 	int HandleAccept(int clientfd);
 	void FreeClientFd(int clientfd);
+	void CheckForClientFd();
+
 private:
 //	static CLCAServerByEpoll* server;
 	CLEpoll* m_epoll;

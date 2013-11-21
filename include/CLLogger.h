@@ -11,7 +11,7 @@ public:
 	static CLStatus WriteLogMsg(const char *pstrMsg, long lErrorCode);
 	CLStatus WriteLog(const char *pstrMsg, long lErrorCode);
 
-	friend class CLLibExecutiveInitializer;
+//	friend class CLLibExecutiveInitializer;
 
 private:
 	static CLStatus Destroy();

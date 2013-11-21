@@ -32,10 +32,8 @@ void CLCAClientPostNetMsgBySocket::Initialize()
 {
 	epoll = 0;
 	sock = new CLSocket(m_IP,m_Port,false,m_IPType);
-	sock->setNonBlock();
-	recv = new CLDataReceviverBySocket(sock);
-	contextForRecv = new CLCAClientContext(sock);
-	recv->setContext(contextForRecv);
+//	sock->setNonBlock();
+
 	Connect();
 }
 

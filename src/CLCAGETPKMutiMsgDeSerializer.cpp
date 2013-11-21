@@ -30,15 +30,17 @@ vector<CLCAMessage*>* CLCAGETPKMutiMsgDeSerializer::DeSerializer(CLBuffer* Buf,u
 {
 	if(-1 == Buf->setSuccessionIndex(startindex))
 	{
-		CLLogger::WriteLog("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),Buf setSuccessionIndex error"0);
+		CLLogger::WriteLogMsg("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),Buf setSuccessionIndex error"0);
 		return 0;
 	}
+
 	uint8_t* buf = 0;
 	bool IsDeleted = false;
 	buf = Buf->getSuccessionBuf(4,&IsDeleted);
+
 	if(buf == 0)
 	{
-		CLLogger::WriteLog("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf",0);
+		CLLogger::WriteLogMsg("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf",0);
 		return 0;
 	}
 
@@ -58,7 +60,7 @@ vector<CLCAMessage*>* CLCAGETPKMutiMsgDeSerializer::DeSerializer(CLBuffer* Buf,u
 		single_vec = SingleDeSer->DeSerializer(Buf,NextIndex);
 		if(single_vec == 0) //一旦出错 则返回0
 		{
-			CLLogger::WriteLog("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),SingleDeSer DeSerializer() error",0);
+			CLLogger::WriteLogMsg("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),SingleDeSer DeSerializer() error",0);
 			for(int j = 0; j< ret_vec->size(); j++)
 			{
 				msg = ret_vec->at(j);

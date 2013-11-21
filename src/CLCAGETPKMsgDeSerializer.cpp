@@ -22,7 +22,7 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 	
 	if( -1 == Buf->setSuccessionIndex(startindex))
 	{
-		CLLogger::WriteLog("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf setSuccessionIndex error",0);
+		CLLogger::WriteLogMsg("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf setSuccessionIndex error",0);
 		return 0;
 	}
 
@@ -30,7 +30,7 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 	uint8_t* buf = Buf->getSuccessionBuf(4,&IsDeleted);
 	if(buf == 0)
 	{
-		CLLogger::WriteLog("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
+		CLLogger::WriteLogMsg("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
 		return 0;
 	}
 
@@ -42,7 +42,7 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 	buf = Buf->getSuccessionBuf(LengthOfNamed,&IsDeleted);
 	if( buf == 0)
 	{
-		CLLogger::WriteLog("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
+		CLLogger::WriteLogMsg("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
 		return 0;
 	}
 
@@ -59,7 +59,7 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 			if(NameDeleted)
 				delete Name;
 
-			CLLogger::WriteLog("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
+			CLLogger::WriteLogMsg("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
 			return 0;
 		}
 
@@ -74,7 +74,7 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 		if(NameDeleted)
 			delete Name;
 		
-		CLLogger::WriteLog("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
+		CLLogger::WriteLogMsg("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
 		return 0;
 	}
 

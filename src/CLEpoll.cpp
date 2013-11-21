@@ -27,7 +27,7 @@ CLEpoll::~CLEpoll()
 	}
 }
 
-int CLEpoll::Register_ctl(int op,int fd,,int eventfd,void* ptr,uint32_t events /* = EPOLLIN | EPOLLET */)
+int CLEpoll::Register_ctl(int op,int fd,int eventfd,void* ptr,uint32_t events /* = EPOLLIN | EPOLLET */)
 {
 	ev->events = events;
 	if(ptr == 0)
@@ -57,6 +57,7 @@ int CLEpoll::getEventFd(int index,int* fd)
 {
 	if(index >= nfds)
 		return -1;
+
 	*fd = events[index].data.fd;
 	return 0;
 }

@@ -2,6 +2,8 @@
 #include "CLCAServer.h"
 #include "CLLogger.h"
 #include <iostream>
+#include <stdio.h>
+
 using namespace std;
 
 CLCAServer::CLCAServer(const uint8_t* IP,const uint16_t Port,const int IPType /* = AF_INET */,const int streamType /* = SOCK_STREAM */)
@@ -83,7 +85,7 @@ int CLCAServer::RegisterSerializer(uint32_t MsgId,CLCASerializer* ser)
 	it = map_Ser->find(MsgId);
 	if(it != map_Ser->end())
 	{
-		CLLogger::WriteLog("In CLCAServer::RegisterSerializer(),register serializer error",0);
+		CLLogger::WriteLogMsg("In CLCAServer::RegisterSerializer(),register serializer error",0);
 		return -1;
 	}
 
@@ -102,7 +104,7 @@ int CLCAServer::RegisterDeSerializer(uint32_t MsgId,CLCADeSerializer* deser)
 	it = map_DeSer->find(MsgId);
 	if(it != map_DeSer->end())
 	{
-		CLLogger::WriteLog("In CLCAServer::RegisterDeSerializer(),register deserializer error",0);
+		CLLogger::WriteLogMsg("In CLCAServer::RegisterDeSerializer(),register deserializer error",0);
 		return -1;
 	}
 	map_DeSer->insert(pair<uint32_t,CLCADeSerializer*>(MsgId,deser));

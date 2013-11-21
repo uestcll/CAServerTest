@@ -51,12 +51,14 @@ void* CLDataReceviverBySocket::getData(uint32_t readSize /* = 0xffffffff */)
 
 	if(m_HasReadSize < m_ReadSize)
 	{
-		m_IsReceviveAll = false;
 		uint8_t* buf = m_buf;
 		m_buf = new uint8_t[m_HasReadSize]; //
 		memcpy(m_buf,buf,m_HasReadSize); //
 		delete buf; //
 	}
+
+	if(m_HasReadSize == m_ReadSize)
+		m_IsReceviveAll = false;
 
 	return m_buf;
 }

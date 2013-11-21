@@ -19,7 +19,9 @@ struct CLIENT_RECEVIVER_INFO
 {
 	CLSocket* m_sock;
 	CLProtocolDecapsulator* ptdpl;
+	int rev_turn;
 	bool IsDelete;
+	
 };
 
 struct CLIENT_POST_INFO

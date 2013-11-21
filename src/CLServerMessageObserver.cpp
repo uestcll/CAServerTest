@@ -41,14 +41,14 @@ void CLServerMessageObserver::HandlerForSGETPKMsg(void* pContext)
 		vector<CLCAMessage*>* vec = (vector<CLCAMessage*>*)hs->MsgData;
 		if(vec == 0 || vec->size() != 1 )
 		{
-			CLLogger::WriteLog("In CLServerMessageObserver::HandlerForSGETPKMsg(),vec size error",0);
+			CLLogger::WriteLogMsg("In CLServerMessageObserver::HandlerForSGETPKMsg(),vec size error",0);
 			return ;
 		}
 
 		CLCAGETPKMessage* msg = dynamic_cast<CLCAGETPKMessage*>(vec->at(0));
 		if(msg == 0)
 		{
-			CLLogger::WriteLog("In CLServerMessageObserver::HandlerForSGETPKMsg(),msg error",0);
+			CLLogger::WriteLogMsg("In CLServerMessageObserver::HandlerForSGETPKMsg(),msg error",0);
 			return ;
 		}
 
@@ -57,7 +57,7 @@ void CLServerMessageObserver::HandlerForSGETPKMsg(void* pContext)
 		CLCAREGETPKMessage* reMsg = 0;
 		if(s == -1)
 		{
-			CLLogger::WriteLog("In CLServerMessageObserver::HandlerForSGETPKMsg(),sqlPKqueryexec error",0);
+			CLLogger::WriteLogMsg("In CLServerMessageObserver::HandlerForSGETPKMsg(),sqlPKqueryexec error",0);
 			reMsg = new CLCAREGETPKMessage(UNSUCCESS,SQL_ERROR,0,0,msg->EchoID);
 			
 		}
@@ -78,7 +78,7 @@ void CLServerMessageObserver::HandlerForSGETPKMsg(void* pContext)
 	}
 	catch(char* str)
 	{
-		CLLogger::WriteLog("In CLServerMessageObserver::HandlerForSGETPKMsg(),",0);
+		CLLogger::WriteLogMsg("In CLServerMessageObserver::HandlerForSGETPKMsg(),",0);
 		
 	}
 
@@ -98,7 +98,7 @@ void CLServerMessageObserver::HandlerForMGETPKMsg(void* pContext)
 
 		if(vec == 0)
 		{
-			CLLogger::WriteLog("In CLServerMessageObserver::HandlerForMGETPKMsg(),vec null",0);
+			CLLogger::WriteLogMsg("In CLServerMessageObserver::HandlerForMGETPKMsg(),vec null",0);
 			return;
 		}
 
@@ -117,7 +117,7 @@ void CLServerMessageObserver::HandlerForMGETPKMsg(void* pContext)
 			msg = dynamic_cast<CLCAGETPKMessage*>(vec->at(i));
 			if(msg == 0)
 			{
-				CLLogger::WriteLog("In CLServerMessageObserver::HandlerForMGETPKMsg(),msg null",0);
+				CLLogger::WriteLogMsg("In CLServerMessageObserver::HandlerForMGETPKMsg(),msg null",0);
 				i++;
 				continue;
 			}
@@ -125,14 +125,14 @@ void CLServerMessageObserver::HandlerForMGETPKMsg(void* pContext)
 			int ret = sql->sqlPKqueryexec(msg->Name,msg->PKType);
 			if(ret == -1)
 			{
-				CLLogger::WriteLog("In CLServerMessageObserver::HandlerForMGETPKMsg(),sqlPKqueryexec() error",0);
+				CLLogger::WriteLogMsg("In CLServerMessageObserver::HandlerForMGETPKMsg(),sqlPKqueryexec() error",0);
 				reMsg = new CLCAREGETPKMessage(UNSUCCESS,SQL_ERROR,0,0,msg->EchoID);
 			}
 			else
 			{
 				uint8_t* pk = sqlite->getPKQueryResult();
 				if(pk == 0)
-					reMsg = new CLCAREGETPKMessage(UNSUCCESS,NOQUERY_ERROR,0,0,msg->EchoID);
+					reMsg = new CLCAREGETPKMessage(UNSUCCESS,NORECORD_ERROR,0,0,msg->EchoID);
 				else
 					reMsg = new CLCAREGETPKMessage(SUCCESS,NO_ERROR,strlen(pk),pk,msg->EchoID);
 			}
@@ -146,7 +146,7 @@ void CLServerMessageObserver::HandlerForMGETPKMsg(void* pContext)
 	}
 	catch (char* str)
 	{
-		CLLogger::WriteLog(str,0);
+		CLLogger::WriteLogMsg(str,0);
 	}
 }
 

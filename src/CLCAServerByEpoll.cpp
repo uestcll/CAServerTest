@@ -43,6 +43,7 @@ void CLCAServerByEpoll::Initialize(CLDataReceviver* drecv)
 
 void CLCAServerByEpoll::start()
 {
+	CheckForClientFd();
 	nfds = m_epoll->EpollWait();
 }
 
@@ -58,7 +59,7 @@ void CLCAServerByEpoll::run()
 
 		if( -1 == m_epoll->getEventFd(i,&fd))
 		{
-			CLLogger::WriteLog("In CLCAServerByEpoll::getData(),getEventFd error",0);
+			CLLogger::WriteLogMsg("In CLCAServerByEpoll::getData(),getEventFd error",0);
 			break;
 		}
 
@@ -74,57 +75,101 @@ void CLCAServerByEpoll::run()
 				if(clientFd == -1)
 				{
 					if(errno != EAGAIN && errno != ECONNABORTED && errno != EPROTO && errno != EINTR)
-						CLLogger::WriteLog("In CLCAServerByEpoll::run(),AcceptSocket error",0);
+						CLLogger::WriteLogMsg("In CLCAServerByEpoll::run(),m_sock->AcceptSocket error",0);
 					
 					break;
 				}
 
 				if(HandleAccept(clientFd) == -1)
 				{
-					CLLogger::WriteLog("In CLCAServerByEpoll::run(),HandleAccept error",0)
+					CLLogger::WriteLogMsg("In CLCAServerByEpoll::run(),HandleAccept error",0)
 					continue;
 				}
 
 			}
+
+			continue;
 		
 		}
 
-		else if(m_epoll->getEvents()[i].events & EPOLLIN)
+		if(m_epoll->getEvents()[i].events & EPOLLIN)
 		{
 			cout<<"GetData From client"<<endl;
 			
 			ret = getClientData(fd);
-			if(ret == 0)
-				continue;
 
-			if(ret->buffer->size() == 0)
+			if(ret != 0)
 			{
-				delete ret->buffer;
-				free(ret);
-				continue;
+				if(ret->buffer->size() == 0)
+				{
+					delete ret->buffer;
+					free(ret);
+					continue;
+				}
+				else
+					client_Msg->push_back(ret);
 			}
-
-			client_Msg->push_back(ret);
-
 		}
 
-		else if(m_epoll->getEvents()[i].events & EPOLLOUT)
+
+		if(m_epoll->getEvents()[i].events & EPOLLOUT)
 		{
 			map<int,CLIENT_POST_INFO*>::iterator it;
 			it = map_ptifo->find(fd);
 
 			if(it == map_ptifo->end())
 			{
-				CLLogger::WriteLog("In CLCAServerByEpoll::run(),fd error",0);
-				m_epoll->Register_ctl(EPOLL_CTL_DEL,fd,fd,0,EPOLLOUT | EPOLLET);
+				CLLogger::WriteLogMsg("In CLCAServerByEpoll::run(),fd error",0);
+				m_epoll->Register_ctl(EPOLL_CTL_MOD,fd,fd,0,EPOLLIN | EPOLLET);
 				continue;
+			}
+
+			bool IsReadSet = true;
+			map<int,CLIENT_RECEVIVER_INFO*>::iterator rev_it;
+			rev_it = map_ptdpl->find(fd);
+
+			if(rev_it == map_ptdpl->end())
+			{
+				IsReadSet = false;
+			}
+			else
+			{
+				CLIENT_RECEVIVER_INFO* rev_info = rev_it->second;
+				if(rev_info == 0)
+					IsReadSet = false;
+				else
+				{
+					if(rev_info->IsDelete)
+						IsReadSet = false;
+				}
 			}
 
 			CLIENT_POST_INFO* info = it->second;
 			if(info == 0)
 			{
-				CLLogger::WriteLog("In CLCAServerByEpoll::run(),CLIENT_POST_INFO null",0);
-				m_epoll->Register_ctl(EPOLL_CTL_DEL,fd,fd,0,EPOLLOUT );
+				CLLogger::WriteLogMsg("In CLCAServerByEpoll::run(),CLIENT_POST_INFO null",0);
+
+				if(IsReadSet)
+					m_epoll->Register_ctl(EPOLL_CTL_MOD,fd,fd,0,EPOLLIN | EPOLLET );
+				else
+					m_epoll->Register_ctl(EPOLL_CTL_DEL,fd,fd,0,EPOLLIN | EPOLLOUT);
+
+
+				continue;
+			}
+
+			info->IsDelete = false;
+
+			if(info->buffer == 0)
+			{
+				CLLogger::WriteLogMsg("In CLCAServerByEpoll::run(),buffer null",0);
+
+				if(IsReadSet)
+					m_epoll->Register_ctl(EPOLL_CTL_MOD,fd,fd,0,EPOLLIN | EPOLLET );
+				else
+					m_epoll->Register_ctl(EPOLL_CTL_DEL,fd,fd,0,EPOLLIN | EPOLLOUT);
+
+				info->IsDelete = true;
 				continue;
 			}
 
@@ -142,7 +187,7 @@ void CLCAServerByEpoll::run()
 				}
 				else
 				{
-					CLLogger::WriteLog("In CLCAServerByEpoll::run(),writevSocket error",0);
+					CLLogger::WriteLogMsg("In CLCAServerByEpoll::run(),writevSocket error",0);
 					FreeClientFd(fd);
 					continue;
 				}
@@ -150,6 +195,7 @@ void CLCAServerByEpoll::run()
 
 			if(len == 0)
 			{
+			//	FreeClientFd(fd);
 				continue;
 			}
 
@@ -157,8 +203,14 @@ void CLCAServerByEpoll::run()
 			{
 				delete info->buffer;
 				info->buffer = 0;
-				m_epoll->Register_ctl(EPOLL_CTL_DEL,fd,fd,0,EPOLLOUT );
 
+				if(IsReadSet)
+					m_epoll->Register_ctl(EPOLL_CTL_MOD,fd,fd,0,EPOLLIN | EPOLLET );
+				else
+				{
+					m_epoll->Register_ctl(EPOLL_CTL_DEL,fd,fd,0,EPOLLIN | EPOLLOUT);
+					info->IsDelete = true;
+				}
 				continue;
 			}
 
@@ -170,7 +222,7 @@ void CLCAServerByEpoll::run()
 
 		}
 
-		else
+		if(!((m_epoll->getEvents()[i].events & EPOLLOUT) || (m_epoll->getEvents()[i].events & EPOLLIN)))
 		{
 			fprintf(stderr,"%s","In CLCAServerByEpoll::getData(),epoll wrong");
 		}
@@ -225,11 +277,11 @@ CLIENT_MSG_INFO* CLCAServerByEpoll::getData()
 			
 			if(IsDeleted)
 				delete buf;
-			  
+
 			DeserIt = map_DeSer->find(MsgId); 
 			if(DeserIt == map_DeSer->end())
 			{
-				CLLogger::WriteLog("In CLCAServerByEpoll::getData(),find CLCASerializer failed",0);
+				CLLogger::WriteLogMsg("In CLCAServerByEpoll::getData(),find CLCASerializer failed",0);
 				delete buffer;
 				continue;
 			}
@@ -285,12 +337,12 @@ int CLCAServerByEpoll::HandleAccept(int clientfd)
 
 	if( -1 == sock->setNonBlock())
 	{
-		CLLogger::WriteLog("In CLCAServerByEpoll::HandleAccept(),setNonBlock error",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::HandleAccept(),setNonBlock error",0);
 	}
 
 	if( -1 == m_epoll->Register_ctl(EPOLL_CTL_ADD,sock->getSock(),sock->getSock(),0,EPOLLIN | EPOLLET))
 	{
-		CLLogger::WriteLog("In CLCAServerByEpoll::HandleAccept(),Register_ctl error",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::HandleAccept(),Register_ctl error",0);
 		delete sock;
 		close(clientFd);
 		return -1;
@@ -298,7 +350,7 @@ int CLCAServerByEpoll::HandleAccept(int clientfd)
 
 	if(map_ptdpl->find(clientfd) != map_ptdpl->end())
 	{
-		CLLogger::WriteLog("In CLCAServerByEpoll::HandleAccept(),map<int,CLIENT_RECEVIVER_INFO*> find fd error",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::HandleAccept(),map<int,CLIENT_RECEVIVER_INFO*> find fd error",0);
 		delete sock;
 		return -1;
 	}
@@ -308,12 +360,13 @@ int CLCAServerByEpoll::HandleAccept(int clientfd)
 	info->m_sock = sock;
 	info->ptdpl = ptdpl;
 	info->IsDelete = false;
+	info->rev_turn = 0;
 
 	map_ptdpl->insert(pair<int,CLIENT_RECEVIVER_INFO*>(clientFd,info));
 
 	if(map_ptifo->find(clientFd) != map_ptifo->end())
 	{
-		CLLogger::WriteLog("In CLCAServerByEpoll::HandleAccept(),map<int,CLIENT_POST_INFO*> find fd error",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::HandleAccept(),map<int,CLIENT_POST_INFO*> find fd error",0);
 		delete sock;
 		return -1;
 	}
@@ -332,20 +385,21 @@ CLIENT_CLBUFFER_INFO* CLCAServerByEpoll::getClientData(int clientfd)
 {
 	if(map_ptdpl->find(clientfd) == map_ptdpl->end())
 	{
-		CLLogger::WriteLog("In CLCAServerByEpoll::getClientData(),map<int,CLProtocolDecapuslator> find clientfd failed",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::getClientData(),map<int,CLProtocolDecapuslator> find clientfd failed",0);
 		return 0;
 	}
 
 	CLIENT_RECEVIVER_INFO* info = map_ptdpl->find(clientfd)->second;
 	info->IsDelete = false;
+	info->rev_turn = 1;
 	CLSocket* sock = info->m_sock;
 	CLProtocolDecapsulator* ptdpl = info->ptdpl;
 	m_drecv->setContext(sock);
 
-	uint32_t leftSize = ptdpl->getLeftSize();
+	uint32_t leftSize = 0;
 	while(true)
 	{
-
+		leftSize = ptdpl->getLeftSize();
 		uint8_t* buf = m_drecv->getData(leftSize);
 		uint32_t len = m_drecv->getDataSize();
 
@@ -354,15 +408,17 @@ CLIENT_CLBUFFER_INFO* CLCAServerByEpoll::getClientData(int clientfd)
 			if(buf != 0)
 				delete buf;
 		/////
-			if( m_drecv->geterrno() > 0 && (m_drecv ->geterrno() != EAGAIN || m_drecv->geterrno() != EINTR) )
+			if( (m_drecv->geterrno() > 0) && (m_drecv ->geterrno() != EAGAIN) && (m_drecv->geterrno() != EINTR) )
 			{
-				CLLogger::WriteLog("In CLCAServerByEpoll::getClientData(), m_drecv ->getdata() error",0);
+				CLLogger::WriteLogMsg("In CLCAServerByEpoll::getClientData(), m_drecv ->getdata() error",0);
 				FreeClientFd(fd);
 			}
 			//read调用返回0
 			else if(m_drecv->geterrno() <= 0)
 			{
 				info->IsDelete  = true;
+				m_epoll->Register_ctl(EPOLL_CTL_MOD,clientfd,clientfd,0,EPOLLOUT | EPOLLET);
+				
 			}
 
 
@@ -373,8 +429,13 @@ CLIENT_CLBUFFER_INFO* CLCAServerByEpoll::getClientData(int clientfd)
 		ptdpl->ProtocolDecapsulate();
 		if(ptdpl->getLeftSize() == 0)
 		{
-			// 解析完毕的处理 。。。。
+			// 解析完毕的处理 ....
+			m_epoll->Register_ctl(EPOLL_CTL_MOD,clientfd,clientfd,0,EPOLLOUT | EPOLLET);
+			info->IsDelete = true;
+			
 		}
+		else
+			info->IsDelete = false;
 
 		if(m_drecv ->IsReceviveAll())
 			break;
@@ -408,14 +469,14 @@ int CLCAServerByEpoll::writeData(vector<CLCAMessage*>* msg_vec,int sock,bool IsM
 {
 	if(msg_vec == 0 )
 	{
-		CLLogger::WriteLog("In CLCAServerByEpoll::writeData(),msg_vec null",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::writeData(),msg_vec null",0);
 		return -1;
 	}
 
 	if(msg_vec->size() == 0)
 	{
 		delete msg_vec;
-		CLLogger::WriteLog("In CLCAServerByEpoll::writeData(),msg_vec size is 0",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::writeData(),msg_vec size is 0",0);
 		return -1;
 	}
 
@@ -442,7 +503,7 @@ int CLCAServerByEpoll::writeData(vector<CLCAMessage*>* msg_vec,int sock,bool IsM
 		}
 
 		delete msg_vec;
-		CLLogger::WriteLog("In CLCAServerByEpoll::writeData(),sock not find",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::writeData(),sock not find",0);
 		return -1;
 	}
 
@@ -451,7 +512,7 @@ int CLCAServerByEpoll::writeData(vector<CLCAMessage*>* msg_vec,int sock,bool IsM
 	CLBuffer* buffer = 0;
 	CLCAMessage* msg = 0;
 
-	post_info = (*post_info_it);
+	post_info = post_info_it->second;
 	if(post_info->buffer != 0)
 		buffer = post_info->buffer;
 
@@ -474,7 +535,7 @@ int CLCAServerByEpoll::writeData(vector<CLCAMessage*>* msg_vec,int sock,bool IsM
 
 	if(Ser_It == map_Ser->end())
 	{
-		CLLogger::WriteLog("In CLCAServerByEpoll::writeData(),CLCASerializer not find",0);
+		CLLogger::WriteLogMsg("In CLCAServerByEpoll::writeData(),CLCASerializer not find",0);
 		
 		//如果是多条消息序列化一条报文，没有找到序列化类 则 删除全部 。
 		if(IsMutiMsg)  
@@ -592,7 +653,7 @@ int CLCAServerByEpoll::writeData(vector<CLCAMessage*>* msg_vec,int sock,bool IsM
 				
 				if(Ser_It == map_Ser->end();)
 				{
-					CLLogger::WriteLog("In CLCAServerByEpoll::writeData(),CLCASerializer not find",0);
+					CLLogger::WriteLogMsg("In CLCAServerByEpoll::writeData(),CLCASerializer not find",0);
 					delete msg;
 					continue;
 				}
@@ -611,7 +672,27 @@ int CLCAServerByEpoll::writeData(vector<CLCAMessage*>* msg_vec,int sock,bool IsM
 
 	}
 
-	m_epoll->Register_ctl(EPOLL_CTL_ADD,sock,sock,0,EPOLLOUT | EPOLLET);
+	post_info->IsDelete = false;
+	
+	map<int,CLIENT_RECEVIVER_INFO*>::iterator rev_it;
+	rev_it = map_ptdpl->find(sock);
+
+	if(rev_it != map_ptdpl->end())
+	{
+		CLIENT_RECEVIVER_INFO* rev_info = rev_it->second;
+		if(rev_info != 0)
+		{
+			if(rev_info->IsDelete)
+			{
+				m_epoll->Register_ctl(EPOLL_CTL_MOD,sock,sock,0, EPOLLOUT | EPOLLET);
+
+				return 0;
+			}
+		}
+
+	}
+
+	m_epoll->Register_ctl(EPOLL_CTL_MOD,sock,sock,0,EPOLLIN | EPOLLOUT | EPOLLET);
 	return 0;
 }
 
@@ -665,6 +746,7 @@ void CLCAServerByEpoll::FreeClientFd(int clientfd)
 
 	}
 
+	 m_epoll->Register_ctl(EPOLL_CTL_DEL,clientfd,clientfd,0,EPOLLIN | EPOLLOUT); 
 
 	if(m_sock != 0)
 	{
@@ -682,5 +764,45 @@ void CLCAServerByEpoll::FreeClientFd(int clientfd)
 		throw "In CLCAServerByEpoll::FreeClientFd(),m_sock->CloseSocket() close socket error";
 		return;
 	}
+
+}
+
+void CLCAServerByEpoll::CheckForClientFd()
+{
+	map<int,CLIENT_RECEVIVER_INFO*>::iterator rev_it;
+	map<int,CLIENT_POST_INFO*>::iterator post_it;
+
+	CLIENT_POST_INFO* post_info = 0;
+	CLIENT_RECEVIVER_INFO* rev_info = 0;
+
+	int fd = -1;
+
+	for(rev_it = map_ptdpl->begin(); rev_it != map_ptdpl->end() ; rev_it ++)
+	{
+		fd = rev_it->first;
+		post_it = map_ptifo->find(fd);
+		if(post_it == map_ptifo->end())
+		{
+			FreeClientFd(fd);
+			continue;
+		}
+
+		rev_info = rev_it->second;
+		post_info = post_it->second;
+
+		if(rev_info->IsDelete)
+		{
+			if(rev_info->rev_turn > 0)
+				rev_info->rev_turn --;
+			else
+				if(post_info->IsDelete)
+				{
+					FreeClientFd(fd);
+					continue;
+				}
+		}
+
+	}
+
 
 }

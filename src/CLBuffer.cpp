@@ -160,6 +160,10 @@ int CLBuffer::setSuccessionIndex(uint32_t index /* = 0 */)
 {
 	if(index >= buf_size)
 		return -1; //error return
+
+	if(Succession_Index == index)
+		return 0;
+
 	Succession_Index = index;
 	if(index == 0)
 	{
@@ -167,6 +171,7 @@ int CLBuffer::setSuccessionIndex(uint32_t index /* = 0 */)
 		Block_Index = 0;
 		return 0;
 	}
+
 	uint32_t currentIndex = 0;
 	Buffer* buf = 0;
 	uint32_t BlockIndex = 0;

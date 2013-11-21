@@ -24,7 +24,7 @@ vector<CLCAMessage*>* CLCAUpdatePKMsgDeSerializer::DeSerializer(CLBuffer* Buf,ui
 
 	if(Buf->setSuccessionIndex(startindex) == -1)
 	{
-		CLLogger::WriteLog("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),set setSuccessionIndex error",0);
+		CLLogger::WriteLogMsg("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),set setSuccessionIndex error",0);
 		return 0;
 	}
 
@@ -33,7 +33,7 @@ vector<CLCAMessage*>* CLCAUpdatePKMsgDeSerializer::DeSerializer(CLBuffer* Buf,ui
 	uint8_t buf = Buf->getSuccessionBuf(20,&IsDeleted);
 	if(buf == 0)
 	{
-		CLLogger::WriteLog("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
+		CLLogger::WriteLogMsg("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
 		return 0;
 	}
 
@@ -49,7 +49,7 @@ vector<CLCAMessage*>* CLCAUpdatePKMsgDeSerializer::DeSerializer(CLBuffer* Buf,ui
 	buf = Buf->getSuccessionBuf(*lenForPW,&IsDeleted);
 	if(buf == 0)
 	{
-		CLLogger::WriteLog("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
+		CLLogger::WriteLogMsg("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
 		
 		if(first20_bufDeleted)
 			delete first20_buf;
@@ -66,7 +66,7 @@ vector<CLCAMessage*>* CLCAUpdatePKMsgDeSerializer::DeSerializer(CLBuffer* Buf,ui
 		buf = Buf->getSuccessionBuf(ReservedLen1,&IsDeleted);
 		if(buf == 0)
 		{
-			CLLogger::WriteLog("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
+			CLLogger::WriteLogMsg("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
 			if(first20_bufDeleted)
 				delete first20_buf;
 
@@ -84,7 +84,7 @@ vector<CLCAMessage*>* CLCAUpdatePKMsgDeSerializer::DeSerializer(CLBuffer* Buf,ui
 	buf = Buf->getSuccessionBuf(ntohl(*lenForPWAW),&IsDeleted);
 	if(buf == 0)
 	{
-		CLLogger::WriteLog("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
+		CLLogger::WriteLogMsg("In CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
 		if(first20_bufDeleted)
 			delete first20_buf;
 
@@ -103,7 +103,7 @@ vector<CLCAMessage*>* CLCAUpdatePKMsgDeSerializer::DeSerializer(CLBuffer* Buf,ui
 		buf = Buf->getSuccessionBuf(ReservedLen2,&IsDeleted);
 		if(buf == 0)
 		{
-			CLLogger::WriteLog("CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
+			CLLogger::WriteLogMsg("CLCAUpdatePKMsgDeSerializer::DeSerializer(),getSuccessionBuf error",0);
 			if(first20_bufDeleted)
 				delete first20_buf;
 
