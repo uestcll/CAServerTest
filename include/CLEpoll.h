@@ -1,10 +1,6 @@
 #ifndef CLEPOLL_H
 #define CLEPOLL_H
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <sys/epoll.h>
 #include <stdint.h>
 

@@ -1,86 +1,92 @@
 #include "CLCAREGETPKMsgSerializer.h"
 #include "CLCAMessage.h"
 #include "CLCAREGETPKMessage.h"
+
 #include <string.h>
 #include <iostream>
-#include <sys/socket.h>
+#include <arpa/inet.h>
 
 CLCAREGETPKMsgSerializer::CLCAREGETPKMsgSerializer()
 {
-	MsgBuf = 0;
-	HeadBuf = 0;
+
 }
 
 CLCAREGETPKMsgSerializer::~CLCAREGETPKMsgSerializer()
 {
-	if(MsgBuf != 0)
-		delete MsgBuf;
 
-	if(HeadBuf != 0)
-		delete HeadBuf;
 }
 
-void CLCAREGETPKMsgSerializer::SerializeHead(uint32_t Type ,uint32_t number )
-{
-	m_nType = Type;
-	m_number = number;
-	HeadBuf = new uint8_t[8];
-	memset(HeadBuf,0,8);
-	uint32_t* type = (uint32_t*)HeadBuf;
-	*type = htonl(Type);
-	uint32_t* len = (uint32_t*)(HeadBuf+4);
-	*len = htonl(FullLength);
-}
 
-uint8_t* CLCAREGETPKMsgSerializer::Serialize(CLCAMessage* message)
+uint8_t* CLCAREGETPKMsgSerializer::Serialize(CLCAMessage* message , std::vector<CLCAMessage*>* msg_vec ,
+	uint32_t MsgType , uint32_t* SerializeLen , bool IsDelete /* = true  */,bool IsHeadSerialize /* = true */ )
 {
-	if(ReStart)
-	{
-		FullLength = 0;
-		ReStart = false;
-	}
+	*SerializeLen = 0;
+
+	if(message == 0 )
+		return 0;
 
 	CLCAREGETPKMessage* msg = (CLCAREGETPKMessage*)message;
+
 	if(msg == 0)
 		return 0;
 
-	uint8_t* buf = new uint8_t[msg->FullLength+1];
-	memset(buf,0,msg->FullLength+1);
+	uint32_t index = 0;
+	uint32_t FullLength = 0;
+	uint8_t* buf = 0;
 
-	uint16_t* isSuccess = (uint16_t*)buf;
-	*isSuccess = htons(msg->isSuccess);
-	uint16_t* errorno = (uint16_t*)(buf+2);
-	*errorno = htons(msg->errorno);
-	uint32_t* len  = (uint32_t*)(buf+4);
-	*len = htonl(msg->len);
-	uint32_t* echoid = (uint32_t*)(buf+8);
-	*echoid = htonl(msg->EchoId);
+	uint32_t reserveLen = (msg->len % 4 == 0 ? 0 : (4 - msg->len % 4));
+	
+	FullLength = 8 + msg->len + 4 + reserveLen;
 
-	memcpy(buf+12,msg->PublicKey,msg->len);
-	FullLength = msg->FullLength;
-
-	MsgBuf = buf;
-	return buf;
-}
-
-uint8_t* CLCAREGETPKMsgSerializer::getSerializeChar()
-{
-	if(HeadBuf == 0 || MsgBuf == 0)
+	if(IsHeadSerialize)
 	{
-		ReStart = true;
-		return 0;
+		FullLength += 8;
+		buf = new uint8_t[FullLength + 1];
+		memset(buf,0,FullLength + 1);
+
+		uint32_t* HeadType = (uint32_t*)buf;
+
+		if(MsgType == 0)
+			*HeadType = htonl(PK_FORRESGET);
+		else
+			*HeadType = htonl(MsgType);
+
+		uint32_t* fullen = (uint32_t*)(buf + 4);
+		*fullen = htonl(FullLength - 8);
+
+		index = 8;
+
 	}
+	else
+	{
+		buf = new uint8_t[FullLength + 1];
+		memset(buf,0,FullLength + 1);
 
-	uint8_t* buf = new uint8_t[8+FullLength];
-	memcpy(buf,HeadBuf,8);
-	memcpy(buf+8,MsgBuf,FullLength);
+		index = 0;
+	}
+	
+	uint16_t* isSuccess = (uint16_t*)(buf + index);
+	*isSuccess = htons(msg->isSuccess);
+	index += 2;
 
-	delete HeadBuf;
-	HeadBuf = 0;
+	uint16_t* errorno = (uint16_t*)(buf + index);
+	*errorno = htons(msg->errorno);
+	index += 2;
 
-	delete MsgBuf ;
-	MsgBuf = 0;
+	uint32_t* len  = (uint32_t*)(buf + index);
+	*len = htonl(msg->len);
+	index += 4;
 
-	ReStart = true;
+	uint32_t* echoid = (uint32_t*)(buf + index);
+	*echoid = htonl(msg->EchoId);
+	index += 4;
+
+	memcpy(buf + index,msg->PublicKey,msg->len);
+
+	*SerializeLen = FullLength;
+
+	if(IsDelete)
+		delete message;
+
 	return buf;
 }

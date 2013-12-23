@@ -1,17 +1,19 @@
 #ifndef CLCASERVERMANAGER_H
 #define CLCASERVERMANAGER_H
 
-#include "CLCAServer.h"
-#include "CLCASerializer.h"
-#include "CLCADeSerializer.h"
-#include "CLCAMessage.h"
-#include "CLMessageObserver.h"
-#include <list>
+#include <stdint.h>
 #include <map>
+#include <vector>
+
 #define  PORT 8080
 
 
 class CLMessageObserver;
+class CLCAServer;
+class CLCADeSerializer;
+class CLCASerializer;
+class CLCAMessage;
+
 struct HandlerStruct
 {
 	int sock;

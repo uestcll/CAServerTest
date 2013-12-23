@@ -2,9 +2,12 @@
 #define CLCAREGETPKMUTIMSGSERIALIZER_H
 
 #include "CLCASerializer.h"
-#include "CLCAREGETPKMessage.h"
-#include "CLCAREGETPKMsgSerializer.h"
+
 #include <list>
+#include <stdint.h>
+
+class CLCAMessage;
+class CLCAREGETPKMsgSerializer;
 
 class CLCAREGETPKMutiMsgSerializer : public CLCASerializer
 {
@@ -12,20 +15,12 @@ public:
 	CLCAREGETPKMutiMsgSerializer();
 	virtual ~CLCAREGETPKMutiMsgSerializer();
 
-	virtual uint8_t* Serialize(CLCAMessage* message);
-	virtual void SerializeHead(uint32_t Type ,uint32_t number);
-	virtual uint8_t* getSerializeChar();
-
-private:
-	void clear_list();
+	virtual uint8_t* Serialize(CLCAMessage* message , std::vector<CLCAMessage*>* msg_vec , 
+		uint32_t MsgType , uint32_t* SerializeLen , bool IsDelete = true ,bool IsHeadSerialize = true );
 
 private:
 	CLCAREGETPKMsgSerializer* SingleMsgSer;
-	uint8_t* HeadBuf;
-	uint8_t* MsgBuf;
-	uint32_t MsgNum;
-	uint32_t MsgType;
-	std::list<CLCAMessage*>* msg_list;
+
 
 
 };

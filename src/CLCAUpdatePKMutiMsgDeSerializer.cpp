@@ -1,7 +1,11 @@
 #include "CLCAUpdatePKMutiMsgDeSerializer.h"
 #include "CLLogger.h"
+#include "CLCAMessage.h"
+#include "CLBuffer.h"
+#include "CLCAUpdatePKMsgDeSerializer.h"
+
 #include <string.h>
-#include <sys/socket.h>
+#include <arpa/inet.h>
 
 using namespace std;
 

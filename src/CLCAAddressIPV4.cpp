@@ -1,6 +1,6 @@
 #include "CLCAAddressIPV4.h"
+
 #include <arpa/inet.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <string.h>

@@ -3,6 +3,11 @@
 
 #include "CLMessageObserver.h"
 
+#include <vector>
+
+class CLCAMessage;
+class CLCAServerManager;
+
 class CLServerMessageObserver : public CLMessageObserver
 {
 public:

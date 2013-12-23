@@ -1,10 +1,12 @@
 #include "CLCAREGETPKMsgDeSerializer.h"
 #include "CLCAREGETPKMessage.h"
 #include "CLLogger.h"
+#include "CLBuffer.h"
+#include "CLCAMessage.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
+#include <arpa/inet.h>
 
 using namespace std;
 
@@ -86,6 +88,7 @@ vector<CLCAMessage*>* CLCAREGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uin
 	
 	if(first_12Deleted)
 		delete first_12;
+
 	if(pkDeleted)
 		delete pk;
 	

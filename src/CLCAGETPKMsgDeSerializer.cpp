@@ -1,10 +1,14 @@
 #include "CLCAGETPKMsgDeSerializer.h"
 #include "CLCAGETPKMessage.h"
 #include "CLLogger.h"
+#include "CLCAMessage.h"
+#include "CLBuffer.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#include <sys/socket.h>
+#include <arpa/inet.h>
+
 using namespace std;
 
 CLCAGETPKMsgDeSerializer::CLCAGETPKMsgDeSerializer()
@@ -36,10 +40,12 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 
 	uint32_t* LengthOfName = (uint32_t*)buf;
 	uint32_t LengthOfNamed = ntohl(*LengthOfName);
+
 	if(IsDeleted)
 		delete buf;
 
 	buf = Buf->getSuccessionBuf(LengthOfNamed,&IsDeleted);
+
 	if( buf == 0)
 	{
 		CLLogger::WriteLogMsg("In CLCAGETPKMsgDeSerializer::DeSerializer(),Buf getSuccessionBuf error",0);
@@ -53,7 +59,8 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 
 	if(strl != 0)
 	{
-		buf = Buf->getSuccessionBuf(str1,&IsDeleted)
+		buf = Buf->getSuccessionBuf(strl,&IsDeleted);
+
 		if( buf == 0 )
 		{
 			if(NameDeleted)
@@ -68,7 +75,8 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 
 	}
 
-	buf = Buf->getSuccessionBuf(8£¬&IsDeleted);
+	buf = Buf->getSuccessionBuf(8 ,&IsDeleted);
+
 	if( buf == 0)
 	{
 		if(NameDeleted)
@@ -78,9 +86,10 @@ vector<CLCAMessage*>* CLCAGETPKMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint3
 		return 0;
 	}
 
-	uint32_t* pkType = (uint32_t*)(buf+4);
-	uint32_t* echoId = (uint32_t*)(buf+8);
-	CLCAGETPKMessage* msg = new CLCAGETPKMessage(LengthOfNamed,Name,ntohl(*pkType),ntohl(*echoId));
+	uint32_t* pkType = (uint32_t*)buf;
+	uint32_t* echoId = (uint32_t*)(buf+4);
+
+	CLCAMessage* msg = new CLCAGETPKMessage(LengthOfNamed,Name,ntohl(*pkType),ntohl(*echoId));
 
 	if(NameDeleted)
 		delete Name;

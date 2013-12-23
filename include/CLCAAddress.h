@@ -1,9 +1,7 @@
 #ifndef CLCAADDRESS_H
 #define CLCAADDRESS_H
 
-#include <arpa/inet.h>
 #include <netinet/in.h>
-#include <sys/socket.h>
 #include <stdint.h>
 
 class CLCAAddress

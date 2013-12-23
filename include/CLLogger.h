@@ -13,7 +13,7 @@ public:
 
 //	friend class CLLibExecutiveInitializer;
 
-private:
+//private:
 	static CLStatus Destroy();
 	static CLStatus Create();
 

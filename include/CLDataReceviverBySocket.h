@@ -1,11 +1,13 @@
 #ifndef CLDATARECEVIVERBYSOCKET_H
 #define CLDATARECEVIVERBYSOCKET_H
+
 #include "CLDataReceviver.h"
-#include "CLProtocolDecapsulator.h"
-#include "CLCAClientContext.h"
+
+#include <stdint.h>
 
 #define  SYS_BUFSIZE 4096
 
+class CLSocket;
 
 class CLDataReceviverBySocket:public CLDataReceviver
 {

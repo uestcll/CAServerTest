@@ -1,10 +1,26 @@
 #include "CLCAServerManager.h"
 #include "CLCAServerByEpoll.h"
+#include "CLCASerializer.h"
+#include "CLCAServer.h"
+#include "CLCAMessage.h"
+#include "CLCADeSerializer.h"
+
 #include "CLCAGETPKMsgSerializer.h"
 #include "CLCAGETPKMutiMsgSerializer.h"
+#include "CLCAREGETPKMsgSerializer.h"
+#include "CLCAREGETPKMutiMsgSerializer.h"
+#include "CLCAREUpdatePKMsgSerializer.h"
+#include "CLCAREUpdatePKMutiMsgSerializer.h"
+
 #include "CLCAGETPKMsgDeSerializer.h"
 #include "CLCAGETPKMutiMsgDeSerializer.h"
+#include "CLCAUpdatePKMsgDeSerializer.h"
+#include "CLCAUpdatePKMutiMsgDeSerializer.h"
+
 #include "CLCAGETPKMessage.h"
+#include "CLMessageObserver.h"
+#include "CLDataReceviverBySocket.h"
+
 #include <stdlib.h>
 
 
@@ -23,7 +39,7 @@ CLCAServerManager::CLCAServerManager(CLMessageObserver* msgObserver)
 CLCAServerManager::CLCAServerManager(CLCAServer* ser,CLMessageObserver* msgObserver)
 {
 	server = ser;
-	IsDeleteServer = false;
+	IsDeleteServer = true;
 	m_pMsgObserver = msgObserver;
 }
 
@@ -32,18 +48,27 @@ CLCAServerManager::~CLCAServerManager()
 	if(IsDeleteServer)
 		delete server;
 
+	delete m_pMsgObserver;
+
 }
 
 void CLCAServerManager::Initialize()
 {
 
-	server->Initialize();
+	server->Initialize(new CLDataReceviverBySocket);
 	m_pMsgObserver->Initialize(this,0);
+
 	RegisterSerializer(PK_FORSGET,new CLCAGETPKMsgSerializer);
 	RegisterSerializer(PK_FORMGET,new CLCAGETPKMutiMsgSerializer);
+	RegisterSerializer(PK_FORRESGET,new CLCAREGETPKMsgSerializer);
+	RegisterSerializer(PK_FORREMGET,new CLCAREGETPKMutiMsgSerializer);
+	RegisterSerializer(PK_FORRESUPDATE,new CLCAREUpdatePKMsgSerializer);
+	RegisterSerializer(PK_FORREMUPDATE,new CLCAREUpdatePKMutiMsgSerializer);
 
 	RegisterDeSerializer(PK_FORSGET,new CLCAGETPKMsgDeSerializer);
 	RegisterDeSerializer(PK_FORMGET,new CLCAGETPKMutiMsgDeSerializer);
+	RegisterDeSerializer(PK_FORSUPDATE,new CLCAUpdatePKMsgDeSerializer);
+	RegisterDeSerializer(PK_FORMUPDATE,new CLCAUpdatePKMutiMsgDeSerializer);
 
 }
 
@@ -85,7 +110,7 @@ void CLCAServerManager::Dispatch(void* pContext)
 	map<uint32_t,Handler> ::iterator Handler_it;
 	uint32_t MsgType ;
 
-	for(One_Msg_it = One_Msg_Vec->begin();One_Msg_it != One_Msg_Vec->end();it++)
+	for(One_Msg_it = One_Msg_Vec->begin();One_Msg_it != One_Msg_Vec->end();One_Msg_it++)
 	{
 		MsgType = (*One_Msg_it)->MsgType;
 

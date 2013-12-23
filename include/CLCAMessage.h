@@ -20,6 +20,7 @@ const int UNSUCCESS = 0;
 #define NORECORD_ERROR 2
 #define MSGNULL_ERROR 3
 // 该类是所有相关认证操作的报文类，这里不包含报头。
+
 class CLCAMessage
 {
 
@@ -36,7 +37,6 @@ private:
 
 public:
 	uint32_t m_MsgID;
-	uint32_t FullLength;
 
 
 

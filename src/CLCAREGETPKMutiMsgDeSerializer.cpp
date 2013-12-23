@@ -1,5 +1,10 @@
 #include "CLCAREGETPKMutiMsgDeSerializer.h"
-#include <sys/socket.h>
+#include "CLCAMessage.h"
+#include "CLCAREGETPKMsgDeSerializer.h"
+#include "CLBuffer.h"
+#include "CLLogger.h"
+
+#include <arpa/inet.h>
 
 using namespace std;
 
@@ -28,7 +33,7 @@ vector<CLCAMessage*>* CLCAREGETPKMutiMsgDeSerializer::DeSerializer(CLBuffer* Buf
 
 	if(-1 == Buf->setSuccessionIndex(startindex))
 	{
-		CLLogger::WriteLogMsg("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),Buf setSuccessionIndex error"0);
+		CLLogger::WriteLogMsg("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),Buf setSuccessionIndex error",0);
 		return 0;
 	}
 

@@ -1,6 +1,10 @@
 #include "CLCAREUpdatePKMsgDeSerializer.h"
 #include "CLLogger.h"
-#include <sys/socket.h>
+#include "CLCAMessage.h"
+#include "CLBuffer.h"
+#include "CLCAREUpdatePKMessage.h"
+
+#include <arpa/inet.h>
 
 using namespace std;
 
@@ -38,7 +42,7 @@ vector<CLCAMessage*>* CLCAREUpdatePKMsgDeSerializer::DeSerializer(CLBuffer* Buf,
 	uint16_t* errorno = (uint16_t*)(buf + 2);
 	uint32_t* echoId = (uint32_t*)(buf + 4);
 
-	CLCAREUpdatePKMessage* msg = new CLCAREUpdatePKMessage(ntohs(*isSuccess),ntohs(*errno),ntohl(*echoId));
+	CLCAMessage* msg = new CLCAREUpdatePKMessage(ntohs(*isSuccess),ntohs(*errorno),ntohl(*echoId));
 	vector<CLCAMessage*>* vec = new vector<CLCAMessage*>;
 	vec->push_back(msg);
 

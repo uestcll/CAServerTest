@@ -2,6 +2,10 @@
 #define CLCAPOSTNETMSGTOOL_H
 
 #include <stdint.h>
+#include <vector>
+
+class CLCAMessage;
+
 #define TYPEOFIPV4 0
 #define TYPEOFIPV6 1
 
@@ -9,7 +13,8 @@
 class CLCAPostNetMsgTool
 {
 public:
-	virtual void PostNetMessage(uint8_t* msg,uint32_t length) = 0;
+	virtual void PostNetMessage(std::vector<CLCAMessage*>* vec , int type) = 0;
+	virtual void PostSingleNetMessage(CLCAMessage* msg) = 0;
 	virtual void* ReadFromNet() = 0;
 
 	CLCAPostNetMsgTool(uint8_t IPType,uint8_t* IP,uint16_t Port);

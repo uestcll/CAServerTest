@@ -1,5 +1,10 @@
 #include "CLCAREUpdatePKMutiMsgDeSerializer.h"
-#include <sys/socket.h>
+#include "CLBuffer.h"
+#include "CLCAMessage.h"
+#include "CLCAREUpdatePKMsgDeSerializer.h"
+#include "CLLogger.h"
+
+#include <arpa/inet.h>
 
 
 using namespace std;
@@ -18,7 +23,7 @@ CLCAREUpdatePKMutiMsgDeSerializer::~CLCAREUpdatePKMutiMsgDeSerializer()
 void CLCAREUpdatePKMutiMsgDeSerializer::getMsgNumber(uint8_t* buf)
 {
 	uint32_t* num = (uint32_t*)buf;
-	msgNum = ntohl(*num);
+	MsgNum = ntohl(*num);
 }
 
 vector<CLCAMessage*>* CLCAREUpdatePKMutiMsgDeSerializer::DeSerializer(CLBuffer* Buf,uint32_t startindex)
@@ -54,7 +59,7 @@ vector<CLCAMessage*>* CLCAREUpdatePKMutiMsgDeSerializer::DeSerializer(CLBuffer* 
 	vector<CLCAMessage*>::iterator it;
 	CLCAMessage* msg = 0;
 
-	while(i < msgNum)
+	while(i < MsgNum)
 	{
 		uint32_t NextIndex = Buf->getSuccessionIndex();
 		vec = SingleMsgDeser->DeSerializer(Buf,NextIndex);

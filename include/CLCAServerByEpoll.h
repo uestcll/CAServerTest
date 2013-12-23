@@ -1,9 +1,15 @@
 #ifndef CLCASERVERBYEPOLL_H
 #define CLCASERVERBYEPOLL_H
+
 #include "CLCAServer.h"
-#include "CLSocket.h"
-#include "CLDataReceviver.h"
-#include "CLEpoll.h"
+
+#include <stdint.h>
+#include <vector>
+
+class CLCAMessage;
+class CLEpoll;
+class CLDataReceviver;
+
 
 class CLCAServerByEpoll:public CLCAServer
 {
@@ -16,8 +22,8 @@ public:
 
 	virtual void Initialize(CLDataReceviver* recv);
 	virtual int Accept();
-	virtual std::vector<CLIENT_MSG_INFO>* getData();
-	virtual int  writeData(std::vector<CLCAMessage*>* msg_vec,int sock,bool IsMutiMsg,uint32_t MsgId);
+	virtual CLIENT_MSG_INFO* getData();
+	virtual int writeData(std::vector<CLCAMessage*>* msg_vec,int sock,bool IsMutiMsg,uint32_t MsgId);
 	virtual void start();
 	virtual void run();
 
@@ -27,6 +33,9 @@ private:
 	int HandleAccept(int clientfd);
 	void FreeClientFd(int clientfd);
 	void CheckForClientFd();
+	int ReTimingForReadClientFd(int fd);
+	int SetTimingForWriteClientFd(int fd);
+	
 
 private:
 //	static CLCAServerByEpoll* server;

@@ -3,6 +3,8 @@
 
 #include "CLCAMessage.h"
 
+#include <stdint.h>
+
 class CLCAREUpdatePKMessage : public CLCAMessage
 {
 public:

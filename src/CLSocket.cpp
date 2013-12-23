@@ -1,6 +1,7 @@
 #include "CLSocket.h"
 #include "CLCAAddress.h"
 #include "CLCAAddressIPV4.h"
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -13,6 +14,7 @@ CLSocket::CLSocket(const uint8_t* IP,uint16_t Port,bool isneeded,int socketType 
 	SocketType = socketType;
 	SocketStream = socketStream;
 	isNeeded = isneeded;
+	isInput = false;
 	if(SocketType == AF_INET)
 		address = new CLCAAddressIPV4(IP,Port); //可能发生异常
 	else
@@ -49,10 +51,12 @@ CLSocket::~CLSocket()
 void CLSocket::Initialize()
 {
 	sock = socket(SocketType,SocketStream,0);
+
 	if(isNeeded)
 		their_addr = (struct sockaddr*)malloc(sizeof(sockaddr));
 	else
 		their_addr = 0;
+
 	isInput = false;
 	if(sock == -1)
 		throw "In CLSocket::Initialize, socket error";

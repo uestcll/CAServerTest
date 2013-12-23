@@ -1,5 +1,5 @@
 #include "CLCAAddress.h"
-#include <sys/socket.h>
+
 
 CLCAAddress::CLCAAddress(const uint8_t* IP,uint16_t Port)
 {

@@ -1,11 +1,11 @@
 #ifndef CLSOCKET_H
 #define CLSOCKET_H
 
-#include "CLCAAddress.h"
 #include <stdint.h>
 #include <sys/uio.h>
+#include <sys/socket.h>
 
-
+class CLCAAddress;
 
 class CLSocket
 {

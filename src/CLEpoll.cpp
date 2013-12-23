@@ -1,5 +1,10 @@
 #include "CLEpoll.h"
+
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 CLEpoll::CLEpoll(int maxsize /* = EPOLL_SIZE */)
 {
@@ -43,8 +48,10 @@ int CLEpoll::Register_ctl(int op,int fd,int eventfd,void* ptr,uint32_t events /*
 int CLEpoll::EpollWait(int timeout /* = EPOLL_TIME_OUT */)
 {
 	nfds = epoll_wait(epfd,events,MaxSize,timeout);
+
 	if(nfds < 0)
 		return -1;
+	
 	return nfds;
 }
 

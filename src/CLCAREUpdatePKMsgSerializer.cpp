@@ -1,82 +1,85 @@
 #include "CLCAREUpdatePKMsgSerializer.h"
-#include <sys/socket.h>
+#include "CLCAMessage.h"
+#include "CLCAREUpdatePKMessage.h"
+
+#include <arpa/inet.h>
 #include <string.h>
 
 CLCAREUpdatePKMsgSerializer::CLCAREUpdatePKMsgSerializer()
 {
-	HeadBuf = 0;
-	MsgBuf = 0;
+
 }
 
 CLCAREUpdatePKMsgSerializer::~CLCAREUpdatePKMsgSerializer()
 {
-	if(HeadBuf != 0)
-		delete HeadBuf;
-
-	if(MsgBuf != 0)
-		delete MsgBuf;
 
 }
 
-void CLCAREUpdatePKMsgSerializer::SerializeHead(uint32_t Type,uint32_t number)
+
+uint8_t* CLCAREUpdatePKMsgSerializer::Serialize(CLCAMessage* message, std::vector<CLCAMessage*>* msg_vec ,
+	uint32_t MsgType , uint32_t* SerializeLen , bool IsDelete /* = true  */,bool IsHeadSerialize /* = true */ )
 {
-	if(HeadBuf != 0)
-		delete HeadBuf;
+	*SerializeLen = 0;
 
-	HeadBuf = new uint8_t[8];
-	memset(HeadBuf,0,8);
+	if(message == 0)
+		return 0;
 
-	uint32_t* type = (uint32_t*)HeadBuf;
-	*type = htonl(Type);
-
-	uint32_t* len = (uint32_t*)(HeadBuf + 4);
-	*len = htonl(FullLength);
-}
-
-uint8_t* CLCAREUpdatePKMsgSerializer::Serialize(CLCAMessage* message)
-{
-	if(ReStart)
-	{
-		FullLength = 0;
-		ReStart = false;
-	}
-
-	CLCAREUpdatePKMessage* msg = dynamic_cast<CLCAREUpdatePKMessage*>message;
+	CLCAREUpdatePKMessage* msg = dynamic_cast<CLCAREUpdatePKMessage*>(message);
+	
 	if(msg == 0)
 		return 0;
 
-	uint8_t* buf = new uint8_t[msg->FullLength];
-	uint16_t* isSuccess = (uint16_t*)buf;
+	uint8_t* buf = 0;
+	uint32_t FullLength = 0;
+	uint32_t index = 0;
+
+	FullLength = 8;
+
+	if(IsHeadSerialize)
+	{
+		FullLength += 8;
+		buf = new uint8_t[FullLength + 1];
+		
+		memset(buf,0,FullLength + 1);
+
+		uint32_t* HeadType = (uint32_t*)buf;
+
+		if(MsgType == 0)
+			*HeadType = htonl(PK_FORRESUPDATE);
+		else
+			*HeadType = htonl(MsgType);
+
+		uint32_t* len = (uint32_t*)(buf + 4);
+		*len = htonl(FullLength - 8);
+
+		index = 8;
+	}
+	else
+	{
+		buf = new uint8_t[FullLength + 1];
+		memset(buf,0,FullLength + 1);
+
+		index = 0;
+	}
+
+	uint16_t* isSuccess = (uint16_t*)(buf + index);
 	*isSuccess = htons(msg->IsSuccess);
+	index += 2;
 
-	uint16_t* errorno = (uint16_t*)(buf + 2);
+	uint16_t* errorno = (uint16_t*)(buf + index);
 	*errorno = htons(msg->ErrorNo);
+	index += 2;
 
-	uint32_t* echoId = (uint32_t*)(buf + 4);
+	uint32_t* echoId = (uint32_t*)(buf + index);
 	*echoId = htonl(msg->EchoId);
 
-	MsgBuf = buf;
+	*SerializeLen = FullLength;
+
+	if(IsDelete)
+		delete message;
+
 	return buf;
 	
 
 }
 
-uint8_t* CLCAREUpdatePKMsgSerializer::getSerializeChar()
-{
-	if(HeadBuf == 0 || MsgBuf == 0)
-		return 0;
-
-	uint8_t* buf = new uint8_t[FullLength + 8];
-	memcpy(buf,HeadBuf,8);
-	memcpy(buf+8,MsgBuf,FullLength);
-
-	delete HeadBuf;
-	delete MsgBuf;
-
-	HeadBuf =0;
-	MsgBuf = 0;
-
-	ReStart = true;
-
-	return buf;
-}

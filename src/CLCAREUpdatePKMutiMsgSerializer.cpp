@@ -1,109 +1,128 @@
 #include "CLCAREUpdatePKMutiMsgSerializer.h"
+#include "CLCAMessage.h"
+#include "CLCAREUpdatePKMsgSerializer.h"
+#include "CLCAREUpdatePKMessage.h"
+#include "CLLogger.h"
 
-#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <string.h>
+
 using namespace std;
 
 CLCAREUpdatePKMutiMsgSerializer::CLCAREUpdatePKMutiMsgSerializer()
 {
-	HeadBuf = 0;
 	SingleMsgSer = new CLCAREUpdatePKMsgSerializer;
-	msg_list = new list<CLCAMessage*>;
+
 }
 
 CLCAREUpdatePKMutiMsgSerializer::~CLCAREUpdatePKMutiMsgSerializer()
 {
 	delete SingleMsgSer;
-
-	if(HeadBuf != 0)
-		delete HeadBuf;
-
-	list<CLCAMessage*>::iterator it;
-	for(it = msg_list->begin();it!= msg_list->end();it++)
-	{
-		if(*it != 0)
-			delete *it;
-	}
-
-	delete msg_list;
 }
 
-void CLCAREUpdatePKMutiMsgSerializer::SerializeHead(uint32_t Type,uint32_t number)
+uint8_t* CLCAREUpdatePKMutiMsgSerializer::Serialize(CLCAMessage* message , std::vector<CLCAMessage*>* msg_vec ,
+	uint32_t MsgType , uint32_t* SerializeLen , bool IsDelete /* = true  */,bool IsHeadSerialize /* = true */ )
 {
-	if(HeadBuf != 0)
-		delete HeadBuf;
+	*SerializeLen = 0;
 
-	HeadBuf = new uint8_t[12];
-	memset(HeadBuf,0,12);
-
-	uint32_t* msgType = (uint32_t*)HeadBuf;
-	*MsgType = htonl(Type);
-
-	uint32_t* len = (uint32_t*)(HeadBuf + 4);
-	FullLength += 4;
-	*len = htonl(FullLength);
-
-	uint32_t* num = (uint32_t*)(HeadBuf+8);
-	*num = htonl(msg_list->size());
-}
-
-uint8_t* CLCAREUpdatePKMutiMsgSerializer::Serialize(CLCAMessage* message)
-{
-	if(ReStart)
-	{
-		FullLength = 0;
-		ReStart = false;
-
-	}
-
-	CLCAREUpdatePKMessage* msg = dynamic_cast<CLCAREUpdatePKMessage*>message;
-
-	if(msg == 0)
+	if(msg_vec == 0)
 		return 0;
 
-	FullLength += msg->FullLength;
-	msg_list->push_back(msg->copy());
-
-	return 0;
-}
-
-uint8_t* CLCAREUpdatePKMutiMsgSerializer::getSerializeChar()
-{
-	if(msg_list->size() == 0)
-	{
-		ReStart = true;
+	if(msg_vec->size() == 0)
 		return 0;
 
-	}
+	vector<uint8_t*>* buf_vec = new vector<uint8_t*>;
+	vector<uint32_t>* len_vec = new vector<uint32_t>;
 
-	CLCAREGETPKMessage* msg = 0;
-	list<CLCAREGETPKMessage*>::iterator it;
+	uint32_t FullLength = 0;
+	uint32_t index = 0;
+	uint8_t* buf = 0;
 
-	uint8_t* buf = new uint8_t[FullLength + 12];
-	memset(buf,0,FullLength+12);
-	memcpy(buf,HeadBuf,12);
+	uint8_t* ret_buf = 0;
 
-	uint8_t* tempbuf = 0;
-	uint32_t HasWriteLen = 12;
-	for(it = msg_list->begin();it != msg_list->end();it ++ )
+	uint32_t i = 0;
+	CLCAMessage* msg = 0;
+
+	uint32_t len = 0;
+
+	for(;i < msg_vec->size() ; i++)
 	{
-		msg = (*it);
-		tempbuf = SingleMsgSer->Serialize(msg);
-		memcpy(buf+HasWriteLen,tempbuf,msg->FullLength);
+		buf = 0;
+		msg = msg_vec->at(i);
 
-		delete tempbuf;
-		delete msg;
+		buf = SingleMsgSer->Serialize(msg,0,0,&len,IsDelete,false);
 
-		tempbuf = 0;
-		msg = 0;
+		if(buf == 0)
+		{
+			CLLogger::WriteLogMsg("In CLCAREUpdatePKMutiMsgSerializer::Serialize(),singleMsgSer error",0);
+			continue;
+		}
 
+		buf_vec->push_back(buf);
+		len_vec->push_back(len);
+
+		FullLength += len;
 	}
 
-	delete HeadBuf;
-	HeadBuf = 0;
+	if(buf_vec->size() == 0)
+	{
+		delete buf_vec;
+		delete len_vec;
 
-	ReStart = true;
-	msg_list->clear();
+		return 0;
+	}
 
-	return buf;
+	
+
+	if(IsHeadSerialize)
+	{
+		FullLength += 12;
+
+		ret_buf = new uint8_t[FullLength + 1];
+		memset(ret_buf,0,FullLength + 1);
+
+		uint32_t* HeadType = (uint32_t*)ret_buf;
+
+		if(MsgType == 0)
+			*HeadType = htonl(PK_FORREMUPDATE);
+		else
+			*HeadType = htonl(MsgType);
+
+		uint32_t* fullen = (uint32_t*)(ret_buf + 4);
+		*fullen = htonl(FullLength - 8);
+
+		index = 8;
+	}
+	else
+	{
+		ret_buf = new uint8_t[FullLength + 1];
+		memset(ret_buf,0,FullLength + 1);
+
+		index = 0;
+	}
+
+	uint32_t* num = (uint32_t*)(ret_buf + 8);
+	*num = htonl(buf_vec->size());
+	index += 4;
+
+	for(i = 0; i< buf_vec->size() ; i++)
+	{
+		buf = buf_vec->at(i);
+		memcpy(ret_buf + index,buf,len_vec->at(i));
+
+		delete buf;
+
+		index += len_vec->at(i);
+	}
+
+	*SerializeLen = FullLength;
+
+	delete buf_vec;
+	delete len_vec;
+
+	if(IsDelete)
+		delete msg_vec;
+
+	return ret_buf;
+
 }

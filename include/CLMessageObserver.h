@@ -1,10 +1,11 @@
 #ifndef CLMESSAGEOBSERVER_H
 #define CLMESSAGEOBSERVER_H
 
-#include "CLCAServerManager.h"
-#include "CLCAMessage.h"
+#include <stdint.h>
+#include <vector>
 
-
+class CLCAServerManager;
+class CLCAMessage;
 
 class CLMessageObserver
 {

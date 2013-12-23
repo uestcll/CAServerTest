@@ -1,4 +1,6 @@
 #include "CLMessageObserver.h"
+#include "CLCAMessage.h"
+#include "CLCAServerManager.h"
 
 CLMessageObserver::CLMessageObserver()
 {

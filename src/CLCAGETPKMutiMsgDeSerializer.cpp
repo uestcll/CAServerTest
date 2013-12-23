@@ -3,7 +3,9 @@
 #include "CLCAGETPKMessage.h"
 #include "CLCAGETPKMsgDeSerializer.h"
 #include "CLLogger.h"
-#include <sys/socket.h>
+#include "CLBuffer.h"
+
+#include <arpa/inet.h>
 
 using namespace std;
 
@@ -30,7 +32,7 @@ vector<CLCAMessage*>* CLCAGETPKMutiMsgDeSerializer::DeSerializer(CLBuffer* Buf,u
 {
 	if(-1 == Buf->setSuccessionIndex(startindex))
 	{
-		CLLogger::WriteLogMsg("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),Buf setSuccessionIndex error"0);
+		CLLogger::WriteLogMsg("In CLCAGETPKMutiMsgDeSerializer::DeSerializer(),Buf setSuccessionIndex error",0);
 		return 0;
 	}
 

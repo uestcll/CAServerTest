@@ -2,9 +2,9 @@
 #define CLCAADDRESSIPV4_H
 
 #include "CLCAAddress.h"
-#include <arpa/inet.h>
+
+#include <stdint.h>
 #include <netinet/in.h>
-#include <sys/socket.h>
 
 class CLCAAddressIPV4 : public CLCAAddress
 {

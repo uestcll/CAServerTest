@@ -1,15 +1,18 @@
 #include "CLCAGETPKMutiMsgSerializer.h"
+#include "CLCAMessage.h"
+#include "CLCAGETPKMessage.h"
+#include "CLCAGETPKMsgSerializer.h"
+#include "CLLogger.h"
+
 #include <string.h>
 #include <iostream>
-#include <sys/socket.h>
+#include <arpa/inet.h>
 
 using namespace std;
 
 CLCAGETPKMutiMsgSerializer::CLCAGETPKMutiMsgSerializer()
 {
 	SingleMsgSer = new CLCAGETPKMsgSerializer;
-	msg_list = new list<CLCAMessage*>;
-	HeadBuf = 0;
 	
 }
 
@@ -17,103 +20,113 @@ CLCAGETPKMutiMsgSerializer::~CLCAGETPKMutiMsgSerializer()
 {
 	delete SingleMsgSer;
 
-	if(HeadBuf != 0)
-	{
-		delete HeadBuf;
-		HeadBuf = 0;
-	}
-	
-	list<CLCAMessage*>::iterator it;
-	for(it = msg_list->begin();it!= msg_list->end();it++)
-	{
-		if(*it != 0)
-			delete *it;
-	}
-
-	delete msg_list;
 }
 
-void CLCAGETPKMutiMsgSerializer::SerializeHead(uint32_t Type /* = PK_FORMGET */,uint32_t number)
+uint8_t* CLCAGETPKMutiMsgSerializer::Serialize(CLCAMessage* message , std::vector<CLCAMessage*>* msg_vec ,
+	uint32_t MsgType , uint32_t* SerializeLen ,bool IsDelete /* = true  */, bool IsHeadSerialize /* = true */ )
 {
 
-	MsgType = Type;
-	MsgNum = number;
-	uint8_t* Head = new uint8_t[12];
-	memset(Head,0,12);
-	FullLength += 4;
-	uint32_t* type = (uint32_t*)Head;
-	uint32_t* len = (uint32_t*)(Head+4);
-	uint32_t* num = (uint32_t*)(Head+8);
-	*type = htonl(MsgType);
-	*len = htonl(FullLength);
-	*num = htonl(msg_list->size());
-	
-	if(HeadBuf != 0)
-		delete HeadBuf;
+	*SerializeLen = 0;
 
-	HeadBuf = Head;
-}
-
-uint8_t* CLCAGETPKMutiMsgSerializer::Serialize(CLCAMessage* message)
-{
-	if(ReStart)
-	{
-		FullLength = 0;
-		ReStart = false;
-	}
-
-	CLCAGETPKMessage* msg = dynamic_cast<CLCAGETPKMessage*>(message);
-	if(msg == 0)
+	if(msg_vec == 0)
 		return 0;
 
-	FullLength += message->FullLength;
-	msg_list->push_back(msg->copy());
-	return 0;
-}
-
-uint8_t* CLCAGETPKMutiMsgSerializer::getSerializeChar()
-{
-	if(msg_list->size() == 0)
-	{
-		ReStart = true;
+	if(msg_vec->size() == 0)
 		return 0;
 
-	}
+	uint32_t FullLength = 0;
+	uint8_t* ret_buf = 0;
+	uint32_t index = 0;
 
-//	if(HeadBuf == 0)
-//		return 0;
+	vector<uint8_t*>* buf_vec = new vector<uint8_t*>;
+	vector<uint32_t>* len_vec = new vector<uint32_t>;
 
-	uint8_t* buf = new uint8_t[FullLength+12];
-	memset(buf,0,FullLength+12);
-	memcpy(buf,HeadBuf,12);
 	CLCAMessage* msg = 0;
+	uint8_t* buf = 0;
 
-	uint32_t HasWriteLen = 12;
-	uint8_t* tempbuf = 0;
+	uint32_t singleLen = 0;
 
-	list<CLCAMessage*>::iterator it;
-	for(it = msg_list->begin();it != msg_list->end();it++)
+	int i ;
+
+	for(i = 0; i < msg_vec->size() ; i++)
 	{
-		tempbuf = SingleMsgSer->Serialize(*it);
-		memcpy(buf+HasWriteLen,tempbuf,(*it)->FullLength);
-		
-		delete tempbuf;
-		delete (*it);
+		buf = 0;
 
-		tempbuf = 0;
-		
+		msg = msg_vec->at(i);
+		buf = SingleMsgSer->Serialize(msg,0,0,&singleLen,IsDelete,false);
+
+		if(buf == 0)
+		{
+			CLLogger::WriteLogMsg("In CLCAGETPKMutiMsgSerializer::Serialize(),singleMsgSer serialize error",0);
+			continue;
+		}
+
+		FullLength += singleLen;
+		buf_vec->push_back(buf);
+		len_vec->push_back(singleLen);
+
 	}
 
-	clearList();
-	delete HeadBuf ;
-	HeadBuf = 0;
+	if(buf_vec->size() == 0)
+	{
+		delete buf_vec;
+		delete len_vec;
 
-	ReStart = true;
-	return buf;
-}
+		return 0;
+	}
 
-void CLCAGETPKMutiMsgSerializer::clearList()
-{
+	if(IsHeadSerialize)
+	{
+		FullLength += 12;
 
-	msg_list->clear();
+		ret_buf = new uint8_t[FullLength + 1];
+		memset(ret_buf,0,FullLength + 1);
+
+		uint32_t* msgtype = (uint32_t*)ret_buf;
+
+		if(MsgType == 0)
+			*msgtype = htonl(PK_FORMGET);
+		else
+			*msgtype = htonl(MsgType);
+
+		uint32_t* len = (uint32_t*)(ret_buf + 4);
+		*len = htonl(FullLength - 8);
+
+		index = 8;
+
+	
+
+	}
+	else
+	{
+		ret_buf = new uint8_t[FullLength + 1];
+		memset(ret_buf,0,FullLength + 1);
+
+		index = 0;
+	}
+
+	uint32_t* num = (uint32_t*)(ret_buf + 8);
+	*num = htonl(buf_vec->size());
+	index += 4;
+
+	for(i = 0;i < buf_vec->size() ; i++ )
+	{
+		buf = buf_vec->at(i);
+		memcpy(ret_buf + index ,buf ,len_vec->at(i) );
+
+		delete buf;
+
+		index += len_vec->at(i);
+	}
+
+	delete buf_vec;
+	delete len_vec;
+
+	*SerializeLen = FullLength;
+
+	if(IsDelete)
+		delete msg_vec;
+
+	return ret_buf;
+
 }

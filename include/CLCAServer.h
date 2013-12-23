@@ -2,25 +2,28 @@
 #define CLCASERVER_H
 
 
-#include "CLSocket.h"
-#include "CLDataReceviver.h"
-#include "CLBuffer.h"
-#include "CLProtocolDecapsulator.h"
-#include "CLCASerializer.h"
-#include "CLCADeSerializer.h"
-#include <iostream>
 #include <vector>
 #include <map>
 #include <stdint.h>
 #include <sys/uio.h>
+#include <sys/socket.h>
 
+class CLSocket;
+class CLCAMessage;
+class CLCASerializer;
+class CLCADeSerializer;
+class CLBuffer;
+class CLDataReceviver;
+class CLProtocolDecapsulator;
 
 struct CLIENT_RECEVIVER_INFO
 {
 	CLSocket* m_sock;
 	CLProtocolDecapsulator* ptdpl;
-	int rev_turn;
+	int TimeStamp;
+	int Logic_TimeStamp;
 	bool IsDelete;
+
 	
 };
 
@@ -61,7 +64,7 @@ public:
 	virtual void Initialize(CLDataReceviver* drecv) = 0;
 	virtual int Accept() = 0;
 	virtual CLIENT_MSG_INFO* getData() = 0;
-	virtual int  writeData(std::vector<CLCAMessage*>* msg_vec,int sock,bool IsMutiMsg,uint32_t MsgId) = 0;
+	virtual int writeData(std::vector<CLCAMessage*>* msg_vec,int sock,bool IsMutiMsg,uint32_t MsgId) = 0;
 	virtual void start() = 0;
 	virtual void run() = 0;
 

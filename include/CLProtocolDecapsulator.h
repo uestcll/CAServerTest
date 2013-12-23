@@ -1,11 +1,12 @@
 #ifndef CLPROTOCOLDECAPSULATOR_H
 #define CLPROTOCOLDECAPSULATOR_H
 
+#include "CLBuffer.h"
+
 #include <stdint.h>
 #include <vector>
-#include <iostream>
 
-class CLBuffer;
+
 typedef Buffer PtlDcpstInput;
 /*struct PtlDcpstInput
 {
@@ -15,18 +16,22 @@ typedef Buffer PtlDcpstInput;
 };
 
 */
+
+//CLProtocolDecapsulator类 负责协议解析，且addCharToDecapsulate加入的Inchar将自动释放内存。
+
 class CLProtocolDecapsulator
 {
+
 public:
-	CLProtocolDecapsulator(uint8_t* InChar,uint32_t InSize);
+	CLProtocolDecapsulator(uint8_t* InChar,uint32_t InSize,uint32_t IsDelete = CANDELETE);
 	CLProtocolDecapsulator();
 	virtual ~CLProtocolDecapsulator();
 
-	virtual void ProtocolDecapsulate() = 0;
-	virtual void addCharToDecapsulate(uint8_t* Inchar,uint32_t InSize) = 0;
+	//every CLBuffer return a msg buf
+	virtual int ProtocolDecapsulate() = 0;
+	virtual int addCharToDecapsulate(uint8_t* Inchar,uint32_t InSize,uint32_t IsDelete = CANDELETE) = 0;
 	virtual uint32_t getLeftSize();
 	virtual std::vector<CLBuffer*>* getDecapsulatorMsgChar() = 0;
-
 
 protected:
 	uint32_t m_NeededBufSize;

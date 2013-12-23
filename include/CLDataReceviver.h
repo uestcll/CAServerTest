@@ -1,5 +1,7 @@
 #ifndef CLDATARECEVIVER_H
 #define CLDATARECEVIVER_H
+
+
 #include <stdint.h>
 
 const uint32_t BUFSIZE =  4*1024;

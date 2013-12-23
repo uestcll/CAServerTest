@@ -11,6 +11,7 @@
 #define DELETED 1
 
 class CLProtocolDecapsulator;
+
 struct Buffer
 {
 	uint8_t* Inchar;
@@ -30,7 +31,8 @@ public:
 	int getSuccessionIndex();
 	uint32_t getBufferSize();
 
-	void setIovecIndex(uint32_t index);
+	int setIovecIndex(uint32_t index);
+	int BufferToIovec();
 	struct iovec* getBufferToIovec();
 	int getIovecCount();
 	uint32_t getBufferToIovecBufferSize();
@@ -38,7 +40,7 @@ public:
 
 //	friend class CLProtocolDecapsulator;
 
-	void addBuf(uint8_t* Char,uint32_t Size,uint32_t IsDelete = 0);
+	void addBuf(uint8_t* Char,uint32_t Size,bool IsNeedNew = false,uint32_t IsDelete = CANNOTDELETE);
 
 private:
 	std::vector<Buffer*>* buf_vec;
@@ -52,6 +54,7 @@ private:
 	uint32_t iovecInBlock_Index;
 	int iovecCount;
 	uint32_t iovecBufferSize;
+	struct iovec* ioves;
 };
 
 #endif
